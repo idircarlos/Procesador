@@ -1,0 +1,9 @@
+ERRORES:
+
+1 Error en la generación del token, no se esperaba este carácter de entrada
+2 Cadena de más de 64 caracteres
+3 Entero fuera de rango, el número es mayor de 32767
+4 Variable <lexema> ya declarada
+5 El operador %= no se ha construido correctamente
+6 Solo se admite el formato de comentarios // -> // Comentario
+7 Carácter no recogido en el lenguaje (Formato ASCII 128 caracteres)

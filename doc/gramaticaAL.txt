@@ -1,0 +1,19 @@
+GRAMÁTICA:
+
+Símbolos no Terminales: 
+
+S -> del S | dA | lB | 'C | %D | /E | = | ( | ) | { | } | , | ; | - | < | ! 
+A -> dA | lambda
+B -> lB | dB | _B | lambda
+C -> cC | '
+D -> =
+E -> /F
+F -> rF | \nS
+
+l: A-z, a-z
+d:0-9
+r: cualquier carácter distinto de fin de línea “\n”
+c: cualquier carácter distinto de ‘
+del: delimitador -> blanco, \t,\n, \r
+oc1: otro carácter distinto de dígito (d)
+oc2: otro carácter distinto de letra (l) dígito (d) o _

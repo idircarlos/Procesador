@@ -1,0 +1,36 @@
+ACCIONES SEMÁNTICAS 
+L: "Leer", lee del fichero fuente el próximo caracter con el que se va a transitar, se modifica el valor de caracter leído
+X: "Concatenar", Concatenar(Lexema) y luego leer
+	
+
+S: "Concatenar de números" y luego se lee
+valor = valor + 
+
+A: pos=buscarTablaPRes(lexema)
+   if(pos!=NULL) then GenToken(pos,-)
+   else if (zonaDecl == true) then
+	pos = buscatTablaActiva(lexema)
+	if(pos!=NULL) then error("Ya está definido")
+   	else
+		pos = insertarTablaActiva(lexema)
+   		GenerarToken(11,pos)
+B: GenerarToken(12,valor) //Numero Entero
+C: GenerarToken(13,cadena) //TOKEN CADENA '
+D: GenerarToken(14,-) //TOKEN ASIGNACION '='
+E: GenerarToken(15,-) //TOKEN MOD-ASIGNACION
+F: GenerarToken(16,-) //TOKEN PARENTESIS ABIERTO
+G: GenerarToken(17,-) //TOKEN PARENTESIS CIERRE
+H: GenerarToken(18,-) //TOKEN LLAVE ABRIR
+I: GenerarToken(19,-) //TOKEN LLAVE CERRAR
+J: GenerarToken(20,-) //TOKEN COMA
+K: GenerarToken(21,-) //TOKEN PUNTO Y COMA
+M: GenerarToken(22,-) //TOKEN RESTA
+N: GenerarToken(23,-) //TOKEN NEGACIÓN
+O: GenerarToken(24,-) //TOKEN MENOR
+
+
+
+int var = 0;
+
+
+var = 1

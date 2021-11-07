@@ -1,0 +1,109 @@
+Prueba 1
+---------------------------------------------------
+let int   a   ;
+let int    b  ;
+let int number;
+print ( 'Introduce el primer operando' );
+input (a);
+print ('Introduce el segundo operando');input(b);
+function operacion
+ int (int num1_, int num2_)
+{
+	let int number;
+	number = 88 - num1_-num2_;
+	return number;
+}
+number = operacion (a, b);
+print (number);
+---------------------------------------------------
+Prueba 2
+---------------------------------------------------
+let int a;
+let   int  b;
+let boolean bbb;
+a = 3;
+b=a					    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
+input(z);
+print(z);
+x%=z;
+print (z-1);
+b=!b;a = a - b;
+print (a) ;
+print(b);
+---------------------------------------------------
+Prueba 3
+---------------------------------------------------
+let int n1;let int n2;
+let boolean l1;let boolean l2;
+let 
+	string 
+		cad
+			;
+input (n1);
+l1 = l2;
+if (! l2) cad = 'hello';
+n2 = n1 - 378;
+
+print(	33 
+		- 
+		n1 
+		- 
+		n2);
+
+function ff boolean(boolean ss)
+{
+	varglobal = 3333;
+	if (l1) l2 = ff (ss);
+	return ss;
+}
+		
+		
+		
+if (ff(!l1)) 
+    print (varglobal);
+---------------------------------------------------
+Prueba 4
+---------------------------------------------------
+if for let
+int boolean string function
+return print input
+a b ds12 rec_a
+25 32 45 a a a a a a a a a a
+'cadena'
+=
+%=
+(){},;-!<
+---------------------------------------------------
+Prueba 5
+---------------------------------------------------
+let string texto;
+function alert (string msg)
+{
+	print (msg);
+}
+function pideTexto ()
+{
+	print ('Introduce un texto');
+	input (texto);
+}
+pideTexto();
+  alert
+	(texto);
+---------------------------------------------------
+Prueba 6
+---------------------------------------------------
+let int   a   ;
+let int    b  ;
+let int number;
+print ( 'Introduce el primer operando' );
+input (a);
+print ('Introduce el segundo operando');input(b);
+function operacion int(int num2,int num1)
+{
+	let int res;
+	res=num1-num2;
+	return ((res));
+}
+number = operacion (a, b);
+print (number);
+---------------------------------------------------

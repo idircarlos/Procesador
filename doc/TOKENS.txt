@@ -1,0 +1,47 @@
+TOKENS:<Código,Atributo>
+
+IF : <1,->
+FOR: <2,->
+LET: <3,->
+INT: <4,->
+BOOLEAN: <5,->
+STRING: <6,->
+FUNCTION: <7,->
+RETURN: <8,->
+PRINT:<9,->
+INPUT:<10,->
+IDENTIFICADOR: <11,PosTabla(número)>
+CONSTANTE ENTERA: <12,valor(número)>
+Cadena " ' ": <13,cadena(c*)>
+ASIGNACIÓN "=" : <14,->
+ModAsignación "%=": <15,->
+ParAbierto "(": <16,->
+ParCierre ")": <17,->
+LlaveAbrir "{": <18,->
+LlaveCerrar "}": <19,->
+Coma ",": <20,->
+PuntoYComa ";": <21,->
+
+IF 1 -
+FOR 2 -
+LET 3 -
+INT 4 -
+BOOLEAN 5 -
+STRING 6 -
+FUNCTION 7 -
+
+TOKENS ASOCIADOS A GRUPOS DE OPCIONES DONDE SÓLO UNA ES OBLIGATORIA Y OPCIONALE EL RESTO
+
+Resta "-":<22,->
+Negación "!":<23,->
+Menor "<": <24,->
+
+
+
+
+
+
+
+
+
+

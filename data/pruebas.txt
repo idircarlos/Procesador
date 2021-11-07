@@ -1,0 +1,37 @@
+let	boolean	b;let int x;
+input (x);
+print (x);
+input (z);
+print (x-z);
+b=x<z;if (b)
+x =
+  x - 6
+    - z
+    - 1
+    - (2
+    - y
+    - 7);
+
+
+
+if for let
+int boolean string function
+return print input
+a b dsa rec_a
+25 32 45
+'manin'
+=
+%=
+(){},;-!<
+
+
+
+if for let
+int boolean string function
+return print input
+a b dsa rec_a
+25 32 45 a a a a a a a a a a
+'manin'
+=
+%=
+(){},;-!<

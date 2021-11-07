@@ -1,0 +1,7 @@
+Tabla Simbolos Global #1:
+* LEXEMA : 'a'
+* LEXEMA : 'b'
+* LEXEMA : 'number'
+* LEXEMA : 'operacion'
+* LEXEMA : 'num1_'
+* LEXEMA : 'num2_'
