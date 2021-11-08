@@ -14,8 +14,11 @@ A: pos=buscarTablaPRes(lexema)
    	else
 		pos = insertarTablaActiva(lexema)
    		GenerarToken(11,pos)
-B: GenerarToken(12,valor) //Numero Entero
-C: GenerarToken(13,cadena) //TOKEN CADENA '
+	
+B: if(valor > 32767) error(3)
+   else GenerarToken(12,valor)      //TOKEN ENTERO
+C: if(caracteresCadena(cadena) > 64) error(2)
+   else GenerarToken(13,cadena) //TOKEN CADENA
 D: GenerarToken(14,-) //TOKEN ASIGNACION '='
 E: GenerarToken(15,-) //TOKEN MOD-ASIGNACION
 F: GenerarToken(16,-) //TOKEN PARENTESIS ABIERTO
@@ -27,10 +30,3 @@ K: GenerarToken(21,-) //TOKEN PUNTO Y COMA
 M: GenerarToken(22,-) //TOKEN RESTA
 N: GenerarToken(23,-) //TOKEN NEGACIÓN
 O: GenerarToken(24,-) //TOKEN MENOR
-
-
-
-int var = 0;
-
-
-var = 1

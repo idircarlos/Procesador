@@ -3,8 +3,8 @@ GRAMÁTICA:
 Símbolos no Terminales: 
 
 S -> del S | dA | lB | 'C | %D | /E | = | ( | ) | { | } | , | ; | - | < | ! 
-A -> dA | lambda
-B -> lB | dB | _B | lambda
+A -> dA | oc1
+B -> lB | dB | _B | oc2
 C -> cC | '
 D -> =
 E -> /F
