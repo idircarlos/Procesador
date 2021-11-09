@@ -113,7 +113,29 @@ public class ActionGotoTable {
 
         addEstado(19, new String[] {"id", "r37", "(", "r37"});
 
-        addEstado(20, new)
+        addEstado(20, new String[] {"id", "d35", "(", "d34",
+                                    "!", "d33", "entero", "d36",
+                                    "cadena", "d37", "E", "40",
+                                    "E1", "31", "E3", "32"});
+
+        addEstado(21, new String[] {"id", "d42", ";", "r16",
+                                    ")", "r16", "D", "41"});
+        
+        addEstado(22, new String[] {"{", "d44", "F3", "43"});
+
+        addEstado(23, new String[] {")", "r30", "int", "d17",
+                                    "string", "d18", "boolean", "d19",
+                                    "A", "45", "T", "46"});
+        
+        addEstado(24, new String[] {"id", "d35", "(", "d34",
+                                    ")", "r32", "!", "d33",
+                                    "entero", "d36", "cadena", "d37",
+                                    "L", "47", "E", "48",
+                                    "E1", "31", "E3", "32"});
+    
+        addEstado(25, new String[] {"id", "r37", "(", "r37"});
+
+
 
 
               
