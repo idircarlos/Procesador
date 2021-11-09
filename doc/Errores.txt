@@ -6,4 +6,3 @@ ERRORES:
 4 Variable <lexema> ya declarada
 5 El operador %= no se ha construido correctamente
 6 Solo se admite el formato de comentarios // -> // Comentario
-7 Carácter no recogido en el lenguaje (Formato ASCII 128 caracteres)
