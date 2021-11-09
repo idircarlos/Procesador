@@ -196,6 +196,10 @@ public class Procesador {
 			if(accion!=null){
 				operacion = accion.charAt(0); // Miramos si es desplazamiento ('d') regla ('r') aceptado ('acc') o error (' ')
 			}
+			else {
+				System.out.println("No aceptado");
+				System.exit(1);
+			}
 			if(operacion == 'd'){
 				estado = accion.substring(1,accion.length());
 				System.out.println("2\t" + pilaAsc);
@@ -229,13 +233,7 @@ public class Procesador {
 				System.out.println("Aceptado");
 				return;
 			}
-			else {
-				System.out.println("No aceptado");
-				System.exit(1);
-			}
 			iter++;
-			
-
 		}
 	}
 
@@ -317,7 +315,7 @@ public class Procesador {
 			lexema = "<";
 			break;
 			default:
-			lexema = "EOF";
+			lexema = "$";
 			break;
 
 		}
@@ -329,8 +327,8 @@ public class Procesador {
 		consecuentes[4] = "A:3"; consecuentes[5] = "A:0"; consecuentes[6] = "B:5"; consecuentes[7] = "B:5";
 		consecuentes[8] = "B:1"; consecuentes[9] = "B:11"; consecuentes[10] = "B1:2"; consecuentes[11] = "B1:0";
 		consecuentes[12] = "C:5"; consecuentes[13] = "C:4"; consecuentes[14] = "C:4"; consecuentes[15] = "C:5";
-		consecuentes[16] = "C:5"; consecuentes[17] = "C:3"; consecuentes[18] = "D:0"; consecuentes[19] = "D:4";
-		consecuentes[20] = "D:4"; consecuentes[21] = "F:3"; consecuentes[22] = "F1:3"; consecuentes[23] = "F2:3";
+		consecuentes[16] = "C:5"; consecuentes[17] = "C:3"; consecuentes[18] = "D:0"; consecuentes[19] = "D:3";
+		consecuentes[20] = "D:3"; consecuentes[21] = "F:3"; consecuentes[22] = "F1:3"; consecuentes[23] = "F2:3";
 		consecuentes[24] = "F3:3"; consecuentes[25] = "G:2"; consecuentes[26] = "G:0"; consecuentes[27] = "H:1";
 		consecuentes[28] = "H:0"; consecuentes[29] = "K:4"; consecuentes[30] = "K:0"; consecuentes[31] = "L:2";
 		consecuentes[32] = "L:0"; consecuentes[33] = "Q:3"; consecuentes[34] = "Q:0"; consecuentes[35] = "T:1";
@@ -416,8 +414,6 @@ public class Procesador {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-		
-		
 	}
 
 	public static void main (String [] args) {
@@ -428,7 +424,7 @@ public class Procesador {
 		rellenarConsecuentes();
 		agt.printTable();
 		try {
-			fr = new FileReader("./data/inputAS.txt");
+			fr = new FileReader(args[0]);
 			bf = new BufferedReader(fr);
 		} catch (IOException e) {
 			e.printStackTrace();
