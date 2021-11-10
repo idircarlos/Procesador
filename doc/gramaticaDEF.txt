@@ -20,8 +20,8 @@ C -> print ( E ) ;
 C -> input ( id ) ;
 C -> return X ;
 D -> lambda
-D -> id %= E ;
-D -> id = E ;
+D -> id %= E
+D -> id = E
 F -> F1 F2 F3
 F1 -> function id H
 F2 -> ( A ) 
