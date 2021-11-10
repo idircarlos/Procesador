@@ -68,7 +68,7 @@ public class ActionGotoTable {
         BufferedReader bf = null;
 		FileReader fr = null;
         try {
-			fr = new FileReader("doc/prueba.csv");
+			fr = new FileReader("doc/Prueba_2.csv");
 			bf = new BufferedReader(fr);
             String [] simbolos = bf.readLine().split(",");
             //System.out.println(Arrays.toString(simbolos));
