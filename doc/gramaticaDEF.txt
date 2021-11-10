@@ -1,43 +1,46 @@
-S1 -> S
+Terminales = { if for let int boolean string function return print input id entero cadena = %= ( ) { } , ; - ! < }
+NoTerminales = { S A B B1 C D F F1 F2 F3 G H K L N Q T X E E1 E3 }
+Axioma = S
+Producciones = {
 S -> B S
 S -> F S
-S -> ''
+S -> lambda
 A -> T id K 
-A -> ''
+A -> lambda
 B -> let T id B1 ;
 B -> if ( E ) C
-B -> C
+B -> C 
 B -> for ( D ; E ; D ) { G } 
 B1 -> = E
-B1 -> ''
+B1 -> lambda 
 C -> id ( L ) ;
 C -> id %= E ;
 C -> id = E ;
 C -> print ( E ) ;
 C -> input ( id ) ;
 C -> return X ;
-D -> ''
-D -> id %= E 
-D -> id = E 
+D -> lambda
+D -> id %= E ;
+D -> id = E ;
 F -> F1 F2 F3
 F1 -> function id H
 F2 -> ( A ) 
 F3 -> { G }
 G -> B G 
-G -> ''
+G -> lambda
 H -> T
-H -> ''
+H -> lambda
 K -> , T id K 
-K -> ''
+K -> lambda
 L -> E Q
-L -> ''
+L -> lambda
 Q -> , E Q 
-Q -> ''
+Q -> lambda
 T -> int
 T -> string
 T -> boolean
 X -> E
-X -> ''
+X -> lambda 
 E -> E < E1
 E -> E1
 E1 -> E1 - E3
@@ -48,3 +51,4 @@ E3 -> id
 E3 -> id ( L )
 E3 -> entero
 E3 -> cadena
+}
