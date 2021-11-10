@@ -222,7 +222,7 @@ public class Procesador {
 				k = Integer.parseInt(linea[1]);
 				antecedente = linea[0];
 				System.out.println("regla " +regla);
-				System.out.println("Antecedente  "+antecedente);
+				System.out.println("Antecedente "+antecedente);
 				System.out.println("k " + k);
 				try{
 					FichParse.write(regla+" ");
