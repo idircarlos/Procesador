@@ -14,6 +14,7 @@ public class Procesador {
 	public static FileWriter FichToken;
 	public static FileWriter FichTablaSimb;
 	public static FileWriter FichError;
+	public static FileWriter FichParse;
 	private static Map<String,Integer> palRes;
 	private static Map<String,Integer> TGlobal = new HashMap<String,Integer>();
 	private static ArrayList<String> ListTG = new ArrayList<String>();
@@ -192,7 +193,10 @@ public class Procesador {
 		while (true){
 			System.out.println("-------------------ITER " + iter + "--------------------");
 			System.out.println( "1\t" +pilaAsc);
+			System.out.println("Esatdo\t" +estado);
+			System.out.println("Simbolo\t" +simbolo);
 			accion = agt.getAccion(estado, simbolo);
+			System.out.println("ACCION\t" +accion);
 			if(accion!=null){
 				operacion = accion.charAt(0); // Miramos si es desplazamiento ('d') regla ('r') aceptado ('acc') o error (' ')
 			}
@@ -208,6 +212,7 @@ public class Procesador {
 				pilaAsc.push(estado);
 				System.out.println("4\t" + pilaAsc);
 				token = ALexico();
+				System.out.println("token\t"+token);
 				simbolo = obtenerLexema(token);
 			}
 			else if (operacion == 'r'){
@@ -219,6 +224,12 @@ public class Procesador {
 				System.out.println("regla " +regla);
 				System.out.println("Antecedente  "+antecedente);
 				System.out.println("k " + k);
+				try{
+					FichParse.write(regla+" ");
+				}
+				catch (IOException e){
+
+				}
 				for (int i = 1; i <= 2*k; i++){
 					pilaAsc.pop();
 				}
@@ -234,6 +245,8 @@ public class Procesador {
 				return;
 			}
 			iter++;
+			
+
 		}
 	}
 
@@ -323,6 +336,7 @@ public class Procesador {
 	}
 
 	public static void rellenarConsecuentes (){
+
 		consecuentes[0] = "S1:1"; consecuentes[1] = "S:2"; consecuentes[2] = "S:2"; consecuentes[3] = "S:0";
 		consecuentes[4] = "A:3"; consecuentes[5] = "A:0"; consecuentes[6] = "B:5"; consecuentes[7] = "B:5";
 		consecuentes[8] = "B:1"; consecuentes[9] = "B:11"; consecuentes[10] = "B1:2"; consecuentes[11] = "B1:0";
@@ -336,6 +350,22 @@ public class Procesador {
 		consecuentes[40] = "E:3"; consecuentes[41] = "E:1"; consecuentes[42] = "E1:3"; consecuentes[43] = "E1:1";
 		consecuentes[44] = "E3:2"; consecuentes[45] = "E3:3"; consecuentes[46] = "E3:1"; consecuentes[47] = "E3:4";
 		consecuentes[48] = "E3:1"; consecuentes[49] = "E3:1";
+		
+		/*
+		consecuentes[1] = "S1:1"; consecuentes[2] = "S:2"; consecuentes[3] = "S:2"; consecuentes[4] = "S:0";
+		consecuentes[5] = "A:3"; consecuentes[6] = "A:0"; consecuentes[7] = "B:5"; consecuentes[8] = "B:5";
+		consecuentes[9] = "B:1"; consecuentes[10] = "B:11"; consecuentes[11] = "B1:2"; consecuentes[12] = "B1:0";
+		consecuentes[13] = "C:5"; consecuentes[14] = "C:4"; consecuentes[15] = "C:4"; consecuentes[16] = "C:5";
+		consecuentes[17] = "C:5"; consecuentes[18] = "C:3"; consecuentes[19] = "D:0"; consecuentes[20] = "D:4";
+		consecuentes[21] = "D:4"; consecuentes[22] = "F:3"; consecuentes[23] = "F1:3"; consecuentes[24] = "F2:3";
+		consecuentes[25] = "F3:3"; consecuentes[26] = "G:2"; consecuentes[27] = "G:0"; consecuentes[28] = "H:1";
+		consecuentes[29] = "H:0"; consecuentes[30] = "K:4"; consecuentes[31] = "K:0"; consecuentes[32] = "L:2";
+		consecuentes[33] = "L:0"; consecuentes[34] = "Q:3"; consecuentes[35] = "Q:0"; consecuentes[36] = "T:1";
+		consecuentes[37] = "T:1"; consecuentes[38] = "T:1"; consecuentes[39] = "X:1"; consecuentes[40] = "X:0";
+		consecuentes[41] = "E:3"; consecuentes[42] = "E:1"; consecuentes[43] = "E1:3"; consecuentes[44] = "E1:1";
+		consecuentes[45] = "E3:2"; consecuentes[46] = "E3:3"; consecuentes[47] = "E3:1"; consecuentes[48] = "E3:4";
+		consecuentes[49] = "E3:1"; consecuentes[50] = "E3:1";
+		*/
 	}
 
 	
@@ -414,6 +444,8 @@ public class Procesador {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
+		
+		
 	}
 
 	public static void main (String [] args) {
@@ -424,7 +456,7 @@ public class Procesador {
 		rellenarConsecuentes();
 		agt.printTable();
 		try {
-			fr = new FileReader(args[0]);
+			fr = new FileReader("./data/inputAS.txt");
 			bf = new BufferedReader(fr);
 		} catch (IOException e) {
 			e.printStackTrace();
@@ -434,6 +466,8 @@ public class Procesador {
 			FichToken = new FileWriter(new File("./data/tokens.txt"));
 			FichTablaSimb = new FileWriter(new File("./data/TS.txt"));
 			FichError = new FileWriter(new File("./data/error.txt"));
+			FichParse = new FileWriter(new File("./data/parse.txt"));
+			FichParse.write("Ascendente ");
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
@@ -445,6 +479,7 @@ public class Procesador {
 			FichToken.close();
 			FichTablaSimb.close();
 			FichError.close();
+			FichParse.close();
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
