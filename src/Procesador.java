@@ -9,12 +9,12 @@ public class Procesador {
 	private static DeterministFiniteAutomate afd; //Automata con las transiciones (matriz de transiciones)
 	private static ActionGotoTable agt;
 	private static Character car; //Caracter leido 
-	public static BufferedReader bf;
-	public static FileReader fr;
-	public static FileWriter FichToken;
-	public static FileWriter FichTablaSimb;
-	public static FileWriter FichError;
-	public static FileWriter FichParse;
+	private static BufferedReader bf;
+	private static FileReader fr;
+	private static FileWriter FichToken;
+	private static FileWriter FichTablaSimb;
+	private static FileWriter FichError;
+	private static FileWriter FichParse;
 	private static Map<String,Integer> palRes;
 	private static Map<String,Integer> TGlobal = new HashMap<String,Integer>();
 	private static ArrayList<String> ListTG = new ArrayList<String>();
@@ -25,9 +25,6 @@ public class Procesador {
 	private static int conter=0;
 	private static int nLinea=1;
 	
-	
-
-
 	public static Token ALexico() {
 		int estadoActual=0; //Estado actual del automata
 		String valor =""; //Almacen de cadenas de numeros
@@ -202,7 +199,9 @@ public class Procesador {
 			}
 			else {
 				System.out.println("No aceptado");
-				System.exit(1);
+				System.out.println("Error");
+				ErrorSintactico(estado, simbolo);
+				break;
 			}
 			if(operacion == 'd'){
 				estado = accion.substring(1,accion.length());
@@ -244,9 +243,21 @@ public class Procesador {
 				System.out.println("Aceptado");
 				return;
 			}
+			else {
+				System.out.println("Error");
+				ErrorSintactico(estado, simbolo);
+			}
 			iter++;
 			
 
+		}
+	}
+
+	public static void ErrorSintactico(String estadoCadena, String simbolo){
+
+		int estado = Integer.valueOf(estadoCadena);
+		if (estado == 7 || estado == 8 || estado == 10 || estado == 11){
+			GenerarErrores(6,simbolo); // Se esperaba paréntesis abierto pero se encontró -> token
 		}
 	}
 
@@ -407,6 +418,10 @@ public class Procesador {
 			break;
 		case 5:
 			FichError.write("Error AnLexico (5): Linea "+nLinea+" Solo se admite el formato de comentarios // -> // Comentario\n");
+			break;
+		case 6:
+			System.out.println("AA");
+			FichError.write("Error AnSintáctico (6) Linea "+nLinea+" Se esperaba ( pero se encontró "+datos);
 			break;
 		}
 		}
