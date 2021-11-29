@@ -8,7 +8,8 @@ import java.util.*;
 public class Procesador {
 	private static DeterministFiniteAutomate afd; //Automata con las transiciones (matriz de transiciones)
 	private static ActionGotoTable agt;
-	private static Character car; //Caracter leido 
+	private static Character car; //Caracter leido
+	private static Character prevCar; //Caracter leido 
 	private static BufferedReader bf;
 	private static FileReader fr;
 	private static FileWriter FichToken;
@@ -253,15 +254,39 @@ public class Procesador {
 		}
 	}
 
-	public static void ErrorSintactico(String estadoCadena, String simbolo){
+	private static void ErrorSintactico(String estadoCadena, String simbolo){
 
 		int estado = Integer.valueOf(estadoCadena);
-		if (estado == 7 || estado == 8 || estado == 10 || estado == 11){
-			GenerarErrores(6,simbolo); // Se esperaba paréntesis abierto pero se encontró -> token
+		if (estado == 5 || estado == 7 || estado == 8 || estado == 10 || estado == 11){
+			GenerarErrores(6,simbolo); // Se esperaba '(' pero se encontró -> token
+		}
+		else if (estado == 45 || estado == 47 || estado == 52 || estado == 81 || estado == 90 || estado == 99 || estado == 100 || estado == 103){
+			GenerarErrores(7,simbolo); // Se esperaba ')' pero se encontró -> token
+		}
+		else if (estado == 22 || estado == 69 || estado == 102){
+			GenerarErrores(8,simbolo); // Se esperaba '{' pero se encontró -> token
+		}
+		else if (estado == 67 || estado == 89 || estado == 105){
+			GenerarErrores(9,simbolo); // Se esperaba '}' pero se encontró -> token
+		}
+		else if (estado == 29 || estado == 41 || estado == 61 || estado == 76 || estado == 77){
+			GenerarErrores(10,simbolo); // Se esperaba ';' pero se encontró -> token
+		}
+		else if (estado == 1){
+			GenerarErrores(11,simbolo); // Se esperaba final de fichero pero se encontro -> token
+		}
+		else if (estado == 4 || estado == 91){
+			GenerarErrores(12,simbolo); // Se esperaba un tipo de dato (int, string boolean) pero se encontro -> token
+		}
+		else if (estado == 13 || estado == 16 || estado == 28 || estado == 46 || estado == 98){
+			GenerarErrores(13,simbolo); // Se esperaba un id pero se encontro -> token
+		}
+		else {
+			GenerarErrores(20,simbolo);
 		}
 	}
 
-	public static String obtenerLexema (Token token){
+	private static String obtenerLexema (Token token){
 		String lexema = "";
 		if (token == null) return "";
 		Integer codigoToken = token.getId();
@@ -346,7 +371,7 @@ public class Procesador {
 		return lexema;
 	}
 
-	public static void rellenarConsecuentes (){
+	private static void rellenarConsecuentes (){
 		
 		consecuentes[0] = "S1:1"; consecuentes[1] = "S:2"; consecuentes[2] = "S:2"; consecuentes[3] = "S:0";
 		consecuentes[4] = "A:3"; consecuentes[5] = "A:0"; consecuentes[6] = "B:5"; consecuentes[7] = "B:5";
@@ -403,27 +428,51 @@ public class Procesador {
 
 	private static void GenerarErrores(int error, String datos) {
 		try {
-		switch(error) {
-		case 1:
-			FichError.write("Error AnLexico (1): Linea "+nLinea+" Error en la generacion del token, no se esperaba este caracter "+datos+"\n");
-			break;
-		case 2:
-			FichError.write("Error AnLexico (2): Linea "+nLinea+" Cadena de mas de 64 caracteres\n");
-			break;
-		case 3:
-			FichError.write("Error AnLexico (3): Linea "+nLinea+" Entero fuera de rango, el numero es mayor de 32767\n");
-			break;
-		case 4:
-			FichError.write("Error AnLexico (4): Linea "+nLinea+" El operador %= no se ha construido correctamente\n");
-			break;
-		case 5:
-			FichError.write("Error AnLexico (5): Linea "+nLinea+" Solo se admite el formato de comentarios // -> // Comentario\n");
-			break;
-		case 6:
-			System.out.println("AA");
-			FichError.write("Error AnSintáctico (6) Linea "+nLinea+" Se esperaba ( pero se encontró "+datos);
-			break;
-		}
+			switch(error) {
+				case 1:
+					FichError.write("Error AnLexico (1): Linea "+nLinea+" Error en la generacion del token, no se esperaba este caracter "+datos+"\n");
+					prevCar = car;
+					break;
+				case 2:
+					FichError.write("Error AnLexico (2): Linea "+nLinea+" Cadena de mas de 64 caracteres\n");
+					break;
+				case 3:
+					FichError.write("Error AnLexico (3): Linea "+nLinea+" Entero fuera de rango, el numero es mayor de 32767\n");
+					break;
+				case 4:
+					FichError.write("Error AnLexico (4): Linea "+nLinea+" El operador %= no se ha construido correctamente\n");
+					break;
+				case 5:
+					FichError.write("Error AnLexico (5): Linea "+nLinea+" Solo se admite el formato de comentarios // -> // Comentario\n");
+					break;
+				case 6:
+					FichError.write("Error AnSintáctico (6) Linea "+nLinea+" Se esperaba ( pero se encontró "+datos);
+					break;
+				case 7:
+					FichError.write("Error AnSintáctico (7) Linea "+nLinea+" Se esperaba ) pero se encontró "+datos);
+					break;
+				case 8:
+					FichError.write("Error AnSintáctico (8) Linea "+nLinea+" Se esperaba { pero se encontró "+datos);
+					break;
+				case 9:
+					FichError.write("Error AnSintáctico (9) Linea "+nLinea+" Se esperaba } pero se encontró "+datos);
+					break;
+				case 10:
+					FichError.write("Error AnSintáctico (10) Linea "+nLinea+" Se esperaba ; pero se encontró "+datos);
+					break;
+				case 11:
+					FichError.write("Error AnSintáctico (11) Linea "+nLinea+" Se esperaba final de fichero pero se encontró "+datos);
+					break;
+				case 12:
+					FichError.write("Error AnSintáctico (12) Linea "+nLinea+" Se esperaba un tipo de dato (int, boolean, string) pero se encontró "+datos);
+					break;
+				case 13:
+					FichError.write("Error AnSintáctico (13) Linea "+nLinea+" Se esperaba un id pero se encontró "+datos);
+					break;
+				case 20:
+					FichError.write("Error AnSintáctico (20) Linea "+nLinea+" Token no esperado, se encontró "+car);
+					break;
+			}
 		}
 		catch(IOException e){
 			e.printStackTrace();
