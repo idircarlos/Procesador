@@ -17,14 +17,21 @@ public class Procesador {
 	private static FileWriter FichError;
 	private static FileWriter FichParse;
 	private static Map<String,Integer> palRes;
-	private static Map<String,Integer> TGlobal = new HashMap<String,Integer>();
-	private static ArrayList<String> ListTG = new ArrayList<String>();
+	private static boolean GlobalActiva = true;
+	private static Map<String, Map<String, Object>> TGlobal = new HashMap<String, Map<String, Object>>();
+	private static Map<String, Map<String, Object>> TLocal = new HashMap<String, Map<String, Object>>();
+	private static Map<String, Integer> ListTG = new HashMap<String, Integer>();
+	private static Map<String, Integer> ListTL = new HashMap<String, Integer>();
+	private static ArrayList<ParFunc> TablaSimbolos = new ArrayList<ParFunc>();
 	private static String[] consecuentes = new String[51];
-	private static Map<String,Integer> TLocal;
 	private static boolean zonaDecl = false;
 	private static final int EOF=65535;
-	private static int conter=0;
+	private static int posTG=0;
+	private static int posTL=0;
 	private static int nLinea=1;
+	private static Stack<Map<String,Object>> pilaAtributos = new Stack<Map<String,Object>>();
+	private static int despG = 0;
+	private static int despL = 0;
 	
 	public static Token ALexico() {
 		int estadoActual=0; //Estado actual del automata
@@ -74,26 +81,64 @@ public class Procesador {
 			switch(acciones) {
 			case "A":
 				Integer pos = buscarTPR(cadena);
+				Map<String,Object> atributos = new HashMap<String,Object>();
 				if (pos != null){
 					token = GenToken(pos,"");
 				}
-				else if(zonaDecl == true){
-
-				}
-				else {
-					if(TGlobal.containsKey(cadena)) {
-						token = GenToken(11,TGlobal.get(cadena));
+				else{
+					if(zonaDecl) {
+						boolean existente;
+						if(GlobalActiva){
+							existente = TGlobal.containsKey(cadena);
+						}
+						else {
+							existente = TLocal.containsKey(cadena);
+						}
+						if (existente){
+							GenerarErrores(99, "");
+						}
+						else{
+							
+							atributos.put("lexema", cadena);
+							if(GlobalActiva){
+								TGlobal.put(cadena, atributos);
+								ListTG.put(cadena, posTG);
+								pos = posTG;
+								posTG++;
+							}
+							else{
+								TLocal.put(cadena, atributos);
+								ListTL.put(cadena, posTL);
+								pos = posTL;
+								posTL++;
+							}
+						}
+					}else{
+						if(!GlobalActiva){
+							if(ListTL.containsKey(cadena)){
+								pos = ListTL.get(cadena);
+							}
+							else if(ListTG.containsKey(cadena)){
+								pos = ListTG.get(cadena);
+							}
+						}
+						else{
+							if(ListTG.containsKey(cadena))
+							pos = ListTG.get(cadena);
+							else{
+								pos = posTG;
+								atributos.put("lexema", cadena);
+								TGlobal.put(cadena, atributos);
+								ListTG.put(cadena, posTG);
+								posTG++;
+							}
+						}
 					}
-					else {
-					pos = conter;
-					conter++;
-					TGlobal.put(cadena, pos);
-					ListTG.add(cadena);
-					token = GenToken(11,pos);
-					}
+					token = GenToken(11, pos);
+					break;
 				}
-				
-				break;
+					
+					
 			case "B":
 				if(Integer.parseInt(valor)>32767) {
 					GenerarErrores(3,"");
@@ -184,8 +229,10 @@ public class Procesador {
 		int k = 1; //Simbolos en el consecuente (numero)
 		String consecuente; //Simbolos en el consecuente (cadena de simbolos)
 		String regla; //Regla utilizada (se vuelca en el fichero parse)
+		boolean encontrado;
 		
 		Stack<String> pilaAsc = new Stack<String>();
+		pilaAtributos.push(new HashMap<String,Object>());
 		pilaAsc.push(estado);
 		int iter = 1;
 		while (true){
@@ -208,9 +255,36 @@ public class Procesador {
 				estado = accion.substring(1,accion.length());
 				System.out.println("2\t" + pilaAsc);
 				pilaAsc.push(simbolo);
+				Map<String,Object> atributos = new HashMap<String,Object>();
+				if (simbolo.equals("id")){
+					String id = (String) token.getVal();
+					if (!GlobalActiva){
+						encontrado = TLocal.containsKey(id);
+						if (!encontrado && TGlobal.containsKey(id)){
+							atributos = TGlobal.get(id);
+						}
+						else {
+							atributos.put("Lexema",id);
+						}
+					}
+				}
+				else {
+					atributos.put("Lexema", simbolo);
+				}
+				pilaAtributos.push(atributos);
 				System.out.println("3\t" + pilaAsc);
 				pilaAsc.push(estado);
 				System.out.println("4\t" + pilaAsc);
+				pilaAtributos.push(new HashMap<String,Object>());
+				if (simbolo.equals("function") || simbolo.equals("let")){
+					ASemantico("0");
+				}
+				else if (simbolo.equals(";")){
+					ASemantico("-1");
+				}
+				else if (simbolo.equals(")") && pilaAtributos.get(pilaAtributos.size()-8).get("Lexema").equals("if")){
+					ASemantico("-2");
+				}
 				token = ALexico();
 				System.out.println("token\t"+token);
 				simbolo = obtenerLexema(token);
@@ -239,6 +313,7 @@ public class Procesador {
 				System.out.println("6\t" + pilaAsc);
 				pilaAsc.push(estado);
 				System.out.println("7\t" + pilaAsc);
+				ASemantico(regla);
 			}
 			else if(operacion == 'a'){
 				System.out.println("Aceptado");
@@ -249,10 +324,92 @@ public class Procesador {
 				ErrorSintactico(estado, simbolo);
 			}
 			iter++;
-			
-
 		}
 	}
+	/**
+	 * 0: lexema
+	 * 1: tipo
+	 * 2: desp
+	 * 3: 
+	 * 4: tipoParam
+	 * 
+	 */
+	public static void ASemantico (String regla){
+		
+		if(regla.equals("0")) {
+			zonaDecl = true;
+			return;
+		}
+		
+		else if(regla.equals("-1")) {
+			zonaDecl = false;
+			return;
+		}
+		
+		int cima = pilaAtributos.size()-1;
+
+		if (regla.equals("-2")){
+			Map<String,Object> atributos = pilaAtributos.get(cima-3);
+			if(atributos.get("tipo").equals("log")){
+				atributos.put("tipo", "tipo_ok");
+				pilaAtributos.set(cima-3,atributos);
+			} else{
+				atributos.put("tipo", "tipo_error");
+					pilaAtributos.set(cima-3,atributos);
+					//generar error 5
+
+			}
+		}
+		Map<String,Object> atributos = new HashMap<String,Object>();
+
+		switch(Integer.parseInt(regla)){
+			case 0: 
+				TGlobal.clear(); //Borrar contenido de Tabla Global
+			break;
+
+		    case 1:
+				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio")){
+					atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				} else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
+						  pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
+								atributos.put("tipo", "tipo_error");
+				}else{
+					atributos.put("tipo", "tipo_ok");
+				}
+				break;
+
+			case 2:
+				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio")){
+					atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				}
+				else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
+						pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
+								atributos.put("tipo", "tipo_error");
+				}else{
+					atributos.put("tipo", "tipo_ok");
+				}
+				break;
+			
+			case 3: 
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			
+			case 4:
+				
+				
+		}
+		
+			
+		
+	}
+
+	private static insertarTipoTS(String tabla, int pos, String tipo){
+		if (tabla.equals("global")){
+			//TGlobal.put("tipo", tipo);
+		}
+	}
+
+
 
 	private static void ErrorSintactico(String estadoCadena, String simbolo){
 
@@ -507,9 +664,7 @@ public class Procesador {
 			FichTablaSimb.write("* LEXEMA : '"+ListTG.get(i)+"'\n");
 		} catch (IOException e) {
 			e.printStackTrace();
-		}
-		
-		
+		}	
 	}
 
 	public static void main (String [] args) {
@@ -520,7 +675,7 @@ public class Procesador {
 		rellenarConsecuentes();
 		agt.printTable();
 		try {
-			fr = new FileReader("./data/inputAS.txt");
+			fr = new FileReader("./data/input1.txt");
 			bf = new BufferedReader(fr);
 		} catch (IOException e) {
 			e.printStackTrace();
