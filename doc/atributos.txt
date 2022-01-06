@@ -1,0 +1,194 @@
+0. S' -> {despG := 0, TSG := CrearTS(), TSActual := TSG, zonaDecl := true} S {DestruyeTS(TSG)}
+1. S -> B S1 {S.tipo := if (B.tipo = tipo_vacio) then S1.tipo 
+                        else if (B.tipo = tipo_error or S1.tipo = tipo_error ) then tipo_error
+                        else tipo_ok}
+                        
+2. S -> F S1 {S.tipo := if(F.tipo = tipo_vacio)
+                        then S1.tipo 
+                        else if (F.tipo = tipo_error or S1.tipo = tipo_error)
+                        then tipo_error
+                        else tipo_ok}
+
+3. S -> lambda {S.tipo := tipo_vacio}
+
+4. A -> T id K { insertarTipoTSL (id.pos, T.tipo)
+                 insertarDespTSL (id.pos, despL)   
+                 despL := despL + T.ancho
+                 if (K.tipoParam = tipo_vacio)
+                 then A.tipoParam := T.tipo, A.numParam := 1
+                 else A.tipoParam := T.tipo x K.tipoParam, A.numParam := K.numParam+1}
+
+5. A -> lambda {A.tipo := tipo_vacio}
+
+6. B -> let T {zonaDecl := true} 
+        id {zonaDecl = false} 
+        B1 ; {if (TSL == NULL) then { insertarTipoTSG (id.pos, T.tipo) insertarDespTSG(id.pos, despG) despG := despG + T.ancho)}
+                else {insertarTipoTSL (id.pos, T.tipo) insertarDespTSL(id.pos, despL), despL := despL + T.ancho} 
+                B.tipo := if (id.tipo = B1.tipo or B1.tipo = tipo_vacio)
+                            then tipo_ok
+                            else tipo_error }
+                            
+7. B -> if ( E ){if (E.tipo = log)
+                    then E.tipo := tipo_ok
+                    else E.tipo := tipo_error}
+         C      {B.tipo := if(E.tipo = C.tipo = tipo_ok)
+                            then tipo_ok
+                            else tipo_error}
+                            
+8. B -> C {B.tipo := C.tipo}
+
+9. B -> for ( D1 ; E ; D2 ) { G } { B.tipo := if (E.tipo = log and D1.tipo = tipo_ok and D2.tipo = tipo_ok)
+                                                then tipo_ok    
+                                                else tipo_error}
+10. B1 -> = E {B1.tipo := E.tipo}
+
+11. B1 -> lambda {B1.tipo := tipo_vacio}
+
+12. C -> id ( L ) ; {pos := buscarIdTS(id)
+                     if (pos = NULL)
+                     then {insertarIdTSG(id),
+                           insertarTipoTSG(id.pos, ent),
+                           insertarDespTSG(id.pos, despG),
+                           despG := despG + 1}
+                     }
+                     id.tipo := BuscarTipoTS(id.pos)
+                     if (id.tipo = func)
+                        then {
+                            if (L.tipo = func)
+                                then {
+                                    numParam := BuscarNParamTSG(id.pos),
+                                    tipoParam := BuscarTipoParamTSG(id.pos),
+                                    if (L.numParam = numParam && L.tipoParam = tipoParam)
+                                        then C.tipo := tipo_ok
+                                    else if (tipoParam = tipo_vacio && L.tipoParam != tipo_vacio)
+                                        then C.tipo := tipo_error()
+                                }
+                            else C.tipo := tipo_error()
+                        }
+                    else
+                        C.tipo := tipo_error()
+                        
+13. C -> id %= E ; {C.tipo := if (BuscaTipoTS(id.pos) = E.tipo = ent)
+                                then tipo_ok
+                                else tipo_error}
+                                
+14. C -> id = E ; {C.tipo := if (BuscaTipoTS(id.pos) = E.tipo)
+                                then tipo_ok
+                                else tipo_error}
+
+15. C -> print ( E ) ; {C.tipo := if(E.tipo = ent || E.tipo = cad)
+                                        then tipo_ok
+                                  else
+                                        then tipo_error() }
+
+16. C -> input ( id ) ; {pos := buscarIdTS (id.pos),
+                if(pos == NULL)
+                then { insertarIdTSG(id),
+                insertarTipoTSG(id.pos,ent),
+                insertarDespTSG(id.pos,despG),
+                despG = despG + 1},
+                id.tipo := BuscarTipoTS(id.pos),
+                C.tipo := if(id.tipo = ent or id.tipo = cad ) then tipo_ok else tipo_error() }
+
+17. C -> return X {if (TSG != NULL)
+                        then {
+                            tipoRet := BuscarTipoRetTSG(funcActual)
+                            if (R.tipo = tipo_error)
+                                then S.tipo := tipo_error, S.tipoRet := tipo_error
+                            else if (R.tipo == tipoRet)
+                                then S.tipo := tipo_ok, S.tipoRet := tipoRet
+                            else if (tipoRet = tipo_vacio)
+                                then S.tipo := tipo_error(), S.tipoRet := tipo_error()
+                            else
+                                S.tipo := tipo_error(), S.tipo_error() 
+                        }
+                    else
+                        C.tipo := tipo_ok, C.tipoRet := X.tipo};
+                        
+18. D -> lambda {D.tipo := tipo_vacio}
+
+19. D -> id %= E {D.tipo = if (BuscarTipoTS(id.pos) = E.tipo = ent) then tipo_ok else tipo_error}
+
+20. D -> id = E {D.tipo = if (BuscarTipoTS(id.pos) = E.tipo && E.tipo != tipo_error) then tipo_ok else tipo_error}
+
+21. F -> F1 F2  {insertarNParamTSG (F1.idPos, F2.numParam),
+                   insertarTipoParamTSG(F1.idPos, F2.tipoParam)}
+                  F3 {F.tipo := F3.tipo, destruirTS(TSL), funcActual := NULL TSActual:= TSG}
+                  
+22. F1 -> function {zonaDecl := true} id H
+
+23. F2 -> ( A ) {F2.numParam := A.numParam, F2.tipoParam := A.tipoParam, zonaDecl := false}
+
+24. F3 -> { G } {F3.tipo := G.tipo, F3.tipoRet := G.tipoRet}
+
+25. G -> B G1 {G.tipo := if (G1.tipo = tipo_error || B.tipo = tipo_error)
+                        then tipo_error
+                        else B_tipo
+                G.tipoRet := B.tipoRet}
+                
+26. G -> lambda {G.tipo := tipo_vacio}
+
+27. H -> T {H.tipo = T.tipo}
+
+28. H -> lambda {H.tipo := tipo_vacio}
+
+29. K -> , T id K1 { insertarTipoTSL (id.pos, T.tipo)
+                 insertarDespTSL (id.pos, despL)   
+                 despL := despL + T.ancho
+                 if (K1.tipoParam = tipo_vacio)
+                 then K.tipoParam := T.tipo, K.numParam := 1
+                 else K.tipoParam := T.tipo x K1.tipoParam, K.numParam := K1.numParam+1}
+                 
+30. K -> lambda {K.tipo := tipo_vacio}
+
+31. L -> E Q {if (Q.tipoParam = tipo_vacio)
+                then L.tipoParam := E.tipo, L.numParam := 1
+                else L.tipoParam := E.tipo x Q.tipoParam, L.numParam := Q.numParam + 1}
+
+32. L -> lambda {L.tipo := tipo_vacio}
+
+33. Q -> , E Q1 {if(Q1.tipoParam= tipo_vacio) then Q.tipoParam := E.tipo, Q.numParam := 1
+                else Q.tipoParam := E.tipo x Q1.tipoParam, Q.numParam := Q.numParam + 1  }
+
+34. Q -> lambda {Q.tipo := tipo_vacio}
+
+35. T -> int {T.tipo := ent, T.ancho := 1}
+
+36. T -> string {T.tipo := cad, T.ancho := 64}
+
+37. T -> boolean {T.tipo := log, T.ancho := 1}
+
+38. X -> E {X.tipo := E.tipo}
+
+39. X -> lambda {X.tipo := tipo_vacio}
+
+40. E -> E < E1 {E.tipo := if(E.tipo = ent && E1.tipo = ent)
+                                    then log
+                              else 
+                                    tipo_error()}
+
+41. E -> E1 {E.tipo := E1.tipo}
+
+42. E1 -> E1 - E3 {E1.tipo := if(E1.tipo = ent && E3.tipo = ent)
+                                    then ent
+                              else 
+                                    tipo_error()}
+43. E1 -> E3 {E1.tipo := E3.tipo}
+
+44. E3 -> ! E3 {E3.tipo := if(E3.tipo = log)
+                                then log
+                           else
+                                tipo_error()}
+                                
+45. E3 -> ( E ) {E3.tipo := E.tipo}
+
+46. E3 -> id {E3.tipo := BuscarTipoTS(id.pos)}
+
+47. E3 -> id ( L ) {E3.tipo := if(BuscaTipoTS(id.pos) = L.tipo)
+                                    then L.tipo
+                               else
+                                    then tipo_error}
+                                    
+48. E3 -> entero {E3.tipo := ent}
+
+49. E3 -> cadena {E3.tipo := cad}
