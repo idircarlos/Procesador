@@ -32,6 +32,8 @@ public class Procesador {
 	private static Stack<Map<String,Object>> pilaAtributos = new Stack<Map<String,Object>>();
 	private static int despG = 0;
 	private static int despL = 0;
+	private static int nEtiqueta = 1;
+	private static ArrayList<ParFunc> bufferTS = new ArrayList<ParFunc>();
 	
 	public static Token ALexico() {
 		int estadoActual=0; //Estado actual del automata
@@ -135,9 +137,9 @@ public class Procesador {
 						}
 					}
 					token = GenToken(11, pos);
-					break;
-				}
 					
+				}
+				break;
 					
 			case "B":
 				if(Integer.parseInt(valor)>32767) {
@@ -257,7 +259,7 @@ public class Procesador {
 				pilaAsc.push(simbolo);
 				Map<String,Object> atributos = new HashMap<String,Object>();
 				if (simbolo.equals("id")){
-					String id = (String) token.getVal();
+					String id = ""+token.getVal();
 					if (!GlobalActiva){
 						encontrado = TLocal.containsKey(id);
 						if (!encontrado && TGlobal.containsKey(id)){
@@ -330,10 +332,12 @@ public class Procesador {
 	 * 0: lexema
 	 * 1: tipo
 	 * 2: desp
-	 * 3: 
-	 * 4: tipoParam
-	 * 
+	 * 3: numParam
+	 * 4: tipoParam (ARRAY)
+	 * 5: tipoRet
+	 * 6: Etiqueta
 	 */
+	@SuppressWarnings("unchecked")
 	public static void ASemantico (String regla){
 		
 		if(regla.equals("0")) {
@@ -346,7 +350,11 @@ public class Procesador {
 			return;
 		}
 		
+		String[] linea = consecuentes[Integer.parseInt(regla)].split(":");
+		int k = Integer.parseInt(linea[1]);
+		String antecedente = linea[0];
 		int cima = pilaAtributos.size()-1;
+
 
 		if (regla.equals("-2")){
 			Map<String,Object> atributos = pilaAtributos.get(cima-3);
@@ -357,10 +365,15 @@ public class Procesador {
 				atributos.put("tipo", "tipo_error");
 					pilaAtributos.set(cima-3,atributos);
 					//generar error 5
-
 			}
+			return;
 		}
 		Map<String,Object> atributos = new HashMap<String,Object>();
+		Map<String,Object> atributosIDS = new HashMap<String,Object>();
+		atributos.put("lexema", antecedente);
+		String id;
+		String funcActual = null;
+		int ancho;
 
 		switch(Integer.parseInt(regla)){
 			case 0: 
@@ -370,10 +383,12 @@ public class Procesador {
 		    case 1:
 				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio")){
 					atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
-				} else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
-						  pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
+				} 
+				else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
+						pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
 								atributos.put("tipo", "tipo_error");
-				}else{
+				}
+				else{
 					atributos.put("tipo", "tipo_ok");
 				}
 				break;
@@ -385,7 +400,8 @@ public class Procesador {
 				else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
 						pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
 								atributos.put("tipo", "tipo_error");
-				}else{
+				}
+				else{
 					atributos.put("tipo", "tipo_ok");
 				}
 				break;
@@ -395,18 +411,624 @@ public class Procesador {
 				break;
 			
 			case 4:
+				Map<String,Object> map = new HashMap<>();
+				id = (String) pilaAtributos.get(cima-3).get("lexema");
+				String tipoVariable = (String) pilaAtributos.get(cima-5).get("tipo");
+				map.put("tipo",tipoVariable);
+				map.put("desp", despL);	
+				map.put("tipoParam", new ArrayList<>());
+				TLocal.put(id, map);
+				despL = despL + (Integer)pilaAtributos.get(cima-5).get("desp");
+				ArrayList<String> auxiliar = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+				if (auxiliar.size() == 0){
+					atributos.put("numParam", 1);
+					ArrayList<String> auxiliar1 = new ArrayList<String>();
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					atributos.put("tipoParam", auxiliar1);
+				}
+				else {
+					int numParam = Integer.valueOf((String) pilaAtributos.get(cima-1).get("tipoParam"));
+					atributos.put("numParam", String.valueOf(numParam));
+					ArrayList<String> auxiliar1 = new ArrayList<String>();
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					atributos.put("tipoParam", auxiliar1);
+				}
+				break;
+
+			case 5:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			case 6:
+				ancho = (Integer) pilaAtributos.get(cima-7).get("desp");
+				id = (String) pilaAtributos.get(cima-5).get("lexema");
+
+				atributosIDS.put("lexema", id);
+				atributosIDS.put("tipo", (String) pilaAtributos.get(cima-7).get("tipo"));
+				if(GlobalActiva){
+					atributosIDS.put("desp", despG);
+					TGlobal.put(id, atributosIDS);
+					despG = despG + ancho;
+				}
+				else{
+					atributosIDS.put("desp", despL);
+					TLocal.put(id, atributosIDS);
+					despL = despL + ancho;
+				}
+
+				pilaAtributos.set(cima-5, atributosIDS);
+				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio") || 
+					pilaAtributos.get(cima-5).get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
+						atributos.put("tipo", "tipo_ok");
+				}
+				else{
+					atributos.put("tipo", "tipo_error");
+					//ERROR Tipos distintos a ambos lados de la asignacion
+				}
+				break;
+			case 7:
+				if(pilaAtributos.get(cima-5).get("tipo").equals("log") && pilaAtributos.get(cima-1).get("tipo").equals("tipo_ok")){
+					atributos.put("tipo", "tipo_ok");
+				}
+				else{
+					atributos.put("tipo", "tipo_error");
+				}
+				break;
+			case 8: 
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+			case 9:
+				if(!pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") &&
+					pilaAtributos.get(cima-9).get("tipo").equals("tipo_ok")&&
+					pilaAtributos.get(cima-13).get("tipo").equals("log") &&
+					pilaAtributos.get(cima-17).get("tipo").equals("tipo_ok")){
+						atributos.put("tipo", "tipo_ok");
+					}
+				else{
+					atributos.put("tipo", "tipo_error");
+					//HACER ERRORES CON ESPECIFCIDAD
+				}
+				break;
+			case 10:
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+
+			case 11:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			case 12:
+				id = (String) pilaAtributos.get(cima-9).get("lexema");
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				pilaAtributos.set(cima-9, atributosIDS);
+				if(atributosIDS.get("tipo").equals("func")){
+					String nombreFuncion = (String) pilaAtributos.get(cima-9).get("lexema");
+					if(pilaAtributos.get(cima-5).get("tipo").equals("func")){
+						String numeroParams = (String) atributosIDS.get("numParams");
+						ArrayList<String> tipoParametros = (ArrayList<String>) atributosIDS.get("tipoParams");
+						ArrayList<String> tipoParametrosL = (ArrayList<String>) pilaAtributos.get(cima-5).get("tipoParams");
+						if(pilaAtributos.get(cima-5).get("numParams").equals(numeroParams) &&
+								tipoParametrosL.equals(tipoParametros)){
+							atributos.put("tipo", "tipo_ok");
+						}
+						else if(tipoParametros.size()==0 && tipoParametrosL.size()!=0){
+							atributos.put("tipo", "tipo_error");
+							//ERROR 13 (<FUNCION> No recibía argumentos pero se han puesto en la llamada)
+						}
+						else{
+							atributos.put("tipo", "tipo_error");
+							//ERROR 6 La llamada a funcion es incorrecta
+						}
+					}
+					else{
+						atributos.put("tipo", "tipo_error");
+						//ERROR 6 La llamada a funcion es incorrecta
+					}
+					
+				}
+				else if (pilaAtributos.get(cima-5).get("tipo").equals("func")){
+					atributos.put("tipo", "tipo_error");
+					//La funcion no está declarada
+				}
+				break;
+			case 13:
+				id = (String) pilaAtributos.get(cima-7).get("lexema");
 				
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				} 
+				pilaAtributos.set(cima-7, atributosIDS);
+				break;
+
+			case 14:
+				id = (String) pilaAtributos.get(cima-7).get("lexema");
 				
-		}
-		
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				} 
+				pilaAtributos.set(cima-7, atributosIDS);
+				break;
+				
+			case 15:
+				if (pilaAtributos.get(cima-5).get("tipo").equals("ent") ||
+					pilaAtributos.get(cima-5).get("tipo").equals("cad"))
+					atributos.put("tipo", "tipo_ok");
+				else {
+					atributos.put("tipo", "tipo_error");
+					//GenerarErrores("AnSem", 8);
+			}
+				break;
+
+			case 16:
+				id = (String) pilaAtributos.get(cima-5).get("lexema");
+				
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						atributosIDS.put("tipoParam", new ArrayList<String>());
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						atributosIDS.put("tipoParam", new ArrayList<String>());
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				} 
+				pilaAtributos.set(cima-5, atributosIDS);
+				
+				if(atributosIDS.get("tipo").equals("ent") || 
+				atributosIDS.get("tipo").equals("cad") ){
+
+					atributos.put("tipo", "tipo_ok");
+					
+				}else{
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores
+					
+				}
+				break;
+
+			case 17:
+				if(!GlobalActiva){
+					String tipoRet = (String) TGlobal.get(funcActual).get("tipoParam");
+					if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
+						atributos.put("tipo", "tipo_error");
+						atributos.put("tipoParam", "tipo_error");
+					
+					}else if(pilaAtributos.get(cima-3).get("tipo").equals(tipoRet)){
+						atributos.put("tipo", "tipo_ok");
+						atributos.put("tipoParam", tipoRet);
+					}else{
+							atributos.put("tipo", "tipo_error");
+						atributos.put("tipoParam", "tipo_error");
+						if(tipoRet.equals("tipo_vacio")){
+							//gestor de errores
+						}else {
+						if(tipoRet.equals("ent")){
+							
+							tipoRet="entero";
+						}
+						else if(tipoRet.equals("log")){
+							
+							tipoRet="boolean";
+						} else if(tipoRet.equals("cad")){
+							
+							tipoRet="cadena";
+						}
+						}
+						//Hacer gestor de errores enviando funActual y tipoRet
+					}
+				}else{
+					atributos.put("tipo", "tipo_ok");
+					atributos.put("tipoParam", pilaAtributos.get(cima-3).get("tipo"));
+					
+				}
+					
+				break;
+				
+			case 18:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+
+			case 19:
+				id = (String) pilaAtributos.get(cima-5).get("lexema");
+				
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				} 
+				pilaAtributos.set(cima-5, atributosIDS);
+				break;
+			case 20:
+				id = (String) pilaAtributos.get(cima-5).get("lexema");
+				
+				if(!GlobalActiva){
+					if(TLocal.containsKey(id)){
+						atributosIDS = TLocal.get(id);
+					}
+					else if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				}
+				else{
+					if(TGlobal.containsKey(id)){
+						atributosIDS = TGlobal.get(id);
+					}
+					else{
+						atributosIDS.put("lexema", id);
+						atributosIDS.put("tipo", "ent");
+						atributosIDS.put("desp", despG);
+						TGlobal.put(id, atributosIDS);
+						despG++;
+					}
+				} 
+				pilaAtributos.set(cima-5, atributosIDS);
+				break;
+			case 21:
+				atributos.put("tipo", (String) pilaAtributos.get(cima-1).get("tipo"));
+				//BUFFER
+				bufferTS.add(new ParFunc((String) pilaAtributos.get(cima-5).get("info"), new HashMap<String,Map<String,Object>>(TLocal)));
+				TLocal.clear();
+				funcActual = null;
+				GlobalActiva = true;
+
+			case 22: 
+				GlobalActiva = false;
+				funcActual = (String) pilaAtributos.get(cima-3).get("lexema");
+				System.out.println(funcActual);
+				despL = 0;
+				Map<String,Object> atribAux = TGlobal.get((String) pilaAtributos.get(cima-3).get("lexema"));
+				atribAux.put("tipo", "func");
+				atribAux.put("tipoParam", new ArrayList<>());
+				atribAux.put("tipoRet", (String) pilaAtributos.get(cima-3).get("tipo"));
+				atribAux.put("etiq", generarEtiqueta());
+				TGlobal.put((String) pilaAtributos.get(cima-1).get("lexema"), atribAux);
+				atribAux.put("tipoRet",(String) pilaAtributos.get(cima-3).get("tipo")); 	// PROBABLEMENTE QUITAR NO CAMBIA
+				atribAux.put("datos", pilaAtributos.get(cima-1).get("lexema"));				// PROBABLEMENTE QUITAR
+				break;
+
+			case 23:
+				atributos.put("numParam", (String) pilaAtributos.get(cima-3).get("numParam"));
+				atributos.put("tipoParam", (ArrayList<String>) pilaAtributos.get(cima-3).get("tipoParam"));
+				zonaDecl = false;
+				break;
 			
+			case 24:
+				atributos.put("tipo", (String) pilaAtributos.get(cima-3).get("tipo"));
+				atributos.put("tipoRet", (String) pilaAtributos.get(cima-3).get("tipoRet"));
+				break;
+
+			case 25:
+                if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
+					pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
+						atributos.put("tipo", "tipo_error");
+					} 
+					else {
+						atributos.put("tipo",pilaAtributos.get(cima-3).get("tipo")); 
+						atributos.put("tipoRet",pilaAtributos.get(cima-3).get("tipoRet"));
+					}
+					break;
+					
+			case 26:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+
+			case 27:
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+
+			case 28:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			
+			case 29:
+				Map<String,Object> map1 = new HashMap<>();
+				id = (String) pilaAtributos.get(cima-3).get("lexema");
+				String tipoVariable1 = (String) pilaAtributos.get(cima-5).get("tipo");
+				map1.put("tipo",tipoVariable1);
+				map1.put("desp", despL);
+				map1.put("tipoParam", new ArrayList<>());
+				TLocal.put(id, map1);
+				despL = despL + Integer.valueOf((String) pilaAtributos.get(cima-5).get("desp"));
+				ArrayList<String> auxiliar2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+				if (auxiliar2.size() == 0){
+					atributos.put("numParam", 1);
+					ArrayList<String> auxiliar1 = new ArrayList<String>();
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					atributos.put("tipoParam", auxiliar1);
+				}
+				else {
+					int numParam = Integer.valueOf((String) pilaAtributos.get(cima-1).get("tipoParam"));
+					atributos.put("numParam", String.valueOf(numParam));
+					ArrayList<String> auxiliar1 = new ArrayList<String>();
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					atributos.put("tipoParam", auxiliar1);
+				}
+				break;
+				
+			case 30:
+				atributos.put("tipoParam", "tipo_vacio");
+				break;
+
+			case 31:
+				ArrayList<String> params1 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+				if (params1.size() == 0){
+					ArrayList<String> auxParams = new ArrayList<String>();
+					auxParams.add((String)pilaAtributos.get(cima-3).get("tipo"));
+					atributos.put("tipoParam", auxParams);
+					atributos.put("numParam", 1);
+				}
+				else {
+					int numParametros = Integer.valueOf((String) pilaAtributos.get(cima-1).get("numParam")) + 1;
+					atributos.put("numParam", numParametros);
+					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
+				}
+				break;
+
+			case 32:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			
+			case 33:
+				ArrayList<String> params2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+				if (params2.size() == 0){
+					ArrayList<String> auxParams = new ArrayList<String>();
+					auxParams.add((String)pilaAtributos.get(cima-3).get("tipo"));
+					atributos.put("tipoParam", auxParams);
+					atributos.put("numParam", 1);
+				}
+				else {
+					int numParametros = Integer.valueOf((String) pilaAtributos.get(cima-1).get("numParam")) + 1;
+					atributos.put("numParam", numParametros);
+					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
+					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
+				}
+				break;
+			case 34:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+			case 35:
+				atributos.put("tipo", "ent");
+				atributos.put("desp", 1);
+				break;
+			case 36:
+			   	atributos.put("tipo", "cad");
+				atributos.put("desp", 64);
+				break;
+			case 37:
+				atributos.put("tipo", "log");
+				atributos.put("desp", 1);
+				break;
+
+			case 38: 
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+
+			case 39:
+				atributos.put("tipo", "tipo_vacio");
+				break;
+
+			case 40:
+				if(pilaAtributos.get(cima-1).get("tipo").equals("ent") && 
+				pilaAtributos.get(cima-5).get("tipo").equals("ent")){
+					atributos.put("tipo", "log");
+				} else{
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores 
+				}
+				break;
+
+			case 41:
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+
+			case 42:
+			 	if(pilaAtributos.get(cima-1).get("tipo").equals("ent") && 
+				pilaAtributos.get(cima-5).get("tipo").equals("ent")){
+					atributos.put("tipo", "ent");
+				} else{
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores 
+				}
+				break;
+				
+			case 43:
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				break;
+
+			case 44:
+				if(pilaAtributos.get(cima-1).get("tipo").equals("log")){
+					atributos.put("tipo", "log");
+				}else{
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores
+				}
+				break;
+
+			case 45:
+				atributos.put("tipo",pilaAtributos.get(cima-3).get("tipo"));
+				break;
+			
+			case 46:
+				id = (String) pilaAtributos.get(cima-1).get("lexema");
+				if (GlobalActiva){	
+					atributos.put("tipo", TGlobal.get(id).get("tipo"));
+				}
+				else {
+					atributos.put("tipo", TLocal.get(id).get("tipo"));
+				}
+				break;
+			
+			case 47:
+				id = (String) pilaAtributos.get(cima-7).get("lexema");
+				String tipoParametros = (String) pilaAtributos.get(cima-3).get("tipo");
+				if (GlobalActiva){
+					if (TGlobal.get(id).get("tipo").equals(tipoParametros)){
+						atributos.put("tipo", tipoParametros);
+					}
+					else {
+						atributos.put("tipo", "tipo_error");
+					}
+				}
+				else {
+					if (TLocal.get(id).get("tipo").equals(tipoParametros)){
+						atributos.put("tipo", tipoParametros);
+					}
+					else {
+						atributos.put("tipo", "tipo_error");
+					}
+				}
+
+			case 48:
+				atributos.put("tipo","ent");
+				break;
+				
+			case 49:
+				atributos.put("tipo","cad");
+				break;
+		}
+
+		for (int i = 0; i < 2*k; i++){
+			pilaAtributos.pop();
+		}
+
+		pilaAtributos.push(atributos);
+		pilaAtributos.push(new HashMap<String,Object>());
+
+		if (regla.equals("23")){
+			cima = pilaAtributos.size() - 1;
+			id = (String) pilaAtributos.get(cima-3).get("info");
+			pilaAtributos.get(cima-1).put("info", id);
+			Map<String,Object> at = TGlobal.get(id);
+			at.put("numParam", pilaAtributos.get(cima-1).get("numParam"));
+			at.put("tipoParam", pilaAtributos.get(cima-1).get("tipoParam"));
+			TGlobal.put(id, at);
+		}
 		
 	}
-
-	private static insertarTipoTS(String tabla, int pos, String tipo){
-		if (tabla.equals("global")){
-			//TGlobal.put("tipo", tipo);
-		}
+	private static String generarEtiqueta() {
+		nEtiqueta++;
+		return (nEtiqueta - 1) + "";
 	}
 
 
@@ -659,10 +1281,12 @@ public class Procesador {
 	
 	private static void imprimirTablaSimbolos() {
 		try {
-			FichTablaSimb.write("Tabla Simbolos Global #1:\n");
-			for(int i=0; i<ListTG.size();i++)
-			FichTablaSimb.write("* LEXEMA : '"+ListTG.get(i)+"'\n");
-		} catch (IOException e) {
+			
+			for(int i=0; i<bufferTS.size();i++){
+				//tablaSimbolos = bufferTS.get(i).getTablaSimbolos()
+			}
+
+		} catch (Exception e) {
 			e.printStackTrace();
 		}	
 	}
