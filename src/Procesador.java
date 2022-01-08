@@ -1,6 +1,7 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
+import java.io.ObjectInputStream.GetField;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.*;
@@ -21,8 +22,7 @@ public class Procesador {
 	private static Map<String, Map<String, Object>> TGlobal = new HashMap<String, Map<String, Object>>();
 	private static Map<String, Map<String, Object>> TLocal = new HashMap<String, Map<String, Object>>();
 	private static Map<Integer, String> ListTG = new HashMap<Integer, String>();
-	//private static Map<Integer, String> ListTL = new HashMap<Integer, String>();
-	private static ArrayList<ParFunc> TablaSimbolos = new ArrayList<ParFunc>();
+	private static Map<Integer, String> ListTL = new HashMap<Integer, String>();
 	private static String[] consecuentes = new String[51];
 	private static boolean zonaDecl = false;
 	private static final int EOF=65535;
@@ -84,48 +84,90 @@ public class Procesador {
 			switch(acciones) {
 			case "A":
 				Integer pos = buscarTPR(cadena);
+				boolean existente;
 				Map<String,Object> atributos = new HashMap<String,Object>();
 				if (pos != null){
 					token = GenToken(pos,"");
 				}
 				else{
-					if(zonaDecl) {
-						boolean existente;
-						if(GlobalActiva){
+					pos = posTG;
+					if(zonaDecl) { //Zona declaracion activa 
+						 //Mira si existe en una tabla o no
+						if(GlobalActiva){ //Si esta la global activa 
 							existente = TGlobal.containsKey(cadena);
 						}
-						else {
+						else { //Esta la local activa
 							existente = TLocal.containsKey(cadena);
 						}
-						if (existente){
-							GenerarErrores(99, "");
+						if (existente){ //Esto significa que existe la variable en dicho ambito ya declarada
+							GenerarErrores(99, ""); //Error de variable ya existente
 						}
-						else{
-						atributos.put("lexema", cadena);
-						atributos.put("tipo", "");
-						atributos.put("desp", "");
-						atributos.put("numParam", "");
-						atributos.put("tipoParam",new ArrayList<String>());
-						atributos.put("tipoRet","");
-						atributos.put("etiq", "");
-						if(GlobalActiva){
-							TGlobal.put(cadena, atributos);
-							ListTG.put(posTG, cadena);
-							pos = posTG;
-							posTG++;
-						}
-						else{
-							TLocal.put(cadena, atributos);
-							ListTG.put(posTG, cadena);
-							pos = posTG;
-							posTG++;
-						}
+						else{ //Sino es que no existe y hay que crearla (Lexico solo introduce el lexema)
+							atributos.put("lexema", cadena);
+							atributos.put("tipo", "");
+							atributos.put("desp", "");
+							atributos.put("numParam", "");
+							atributos.put("tipoParam",new ArrayList<String>());
+							atributos.put("tipoRet","");
+							atributos.put("etiq", "");
+							atributos.put("pos", posTG);
+							if(GlobalActiva){ //Si esta la Global Activa entonces se vuelca en la global
+								TGlobal.put(cadena, atributos); //Se ponen los atributos (solo el lexema) en la tabla global
+								ListTG.put(posTG, cadena); //Se almacena la posicion en la TS en una lista auxiliar
+								posTG++;
+							}
+							else{
+								TLocal.put(cadena, atributos);
+								ListTL.put(posTG, cadena);
+								posTG++;
+							}
 						}
 					}
-					else{
-						ListTG.put(posTG, cadena);
-						pos = posTG;
-						posTG++;
+					else{ //No esta la zona de declaracion activada
+						if(GlobalActiva){ // Se busca en la global
+							System.out.println("CADENA: " + cadena);
+							System.out.println(TGlobal);
+							existente = TGlobal.containsKey(cadena);
+							if(existente){
+								System.out.println("estamos dentro");
+								if (TGlobal.get(cadena).get("pos") != null && !TGlobal.get(cadena).get("pos").equals("") ){
+									pos = Integer.parseInt(""+TGlobal.get(cadena).get("pos"));
+								}
+								else {
+									pos = null;
+								}
+								System.out.println("pos" + pos);
+							} 
+						} 
+						else{ //Se busca en local y luego en la global si es que no existia en la local
+							existente = TLocal.containsKey(cadena);
+							if(!existente){
+								existente = TGlobal.containsKey(cadena);
+								if(existente){
+									pos = (Integer)TGlobal.get(cadena).get("pos"); //Existe en la global
+								}
+							}
+							else{ //Existe en la local (existente = true) para la local
+								pos = (Integer)TLocal.get(cadena).get("pos"); //Existe en la local
+								
+							}
+						}
+						if(!existente){ //No existe el identificador y no estamos en zona de declaracion por lo que es un entero
+						//Hay que anadirlo a la global
+							atributos.put("lexema", cadena);
+							atributos.put("tipo", "ent");
+							atributos.put("desp", despG);
+							atributos.put("numParam", "");
+							atributos.put("tipoParam",new ArrayList<String>());
+							atributos.put("tipoRet","");
+							atributos.put("etiq", "");
+							atributos.put("pos", pos);
+							ListTG.put(posTG,cadena);
+							despG++;
+							posTG++;
+							TGlobal.put(cadena, atributos);
+							
+						}
 					}
 					System.out.println("ESTAMOS AQUI   "+pos);
 					token = GenToken(11, pos);
@@ -255,22 +297,22 @@ public class Procesador {
 					Integer id = (Integer)token.getVal();
 					System.out.println("NECESITAMOS QUE AQUI NO DE NULL " + id);
 					System.out.println(GlobalActiva);
-					if (!GlobalActiva){
-						encontrado = TLocal.containsKey(ListTG.get(id));
+					if (!GlobalActiva){ //Si no esta activa la tabla
+						encontrado = TLocal.containsKey(ListTL.get(id));
 						if (!encontrado && TGlobal.containsKey(ListTG.get(id))){
 							System.out.println("dentro");
 							atributos = TGlobal.get(ListTG.get(id));
 						}
 						else {
 							System.out.println("fuera");
-							atributos.put("lexema",ListTG.get(id));
+							atributos.put("lexema",""+id);
 						}
 					}
 					else if (TGlobal.containsKey(ListTG.get(id))){
 						atributos = TGlobal.get(ListTG.get(id));
 					}
 					else {
-						atributos.put("lexema", ""+token.getVal());
+						atributos.put("lexema", ListTG.get(id));
 					}
 				}
 				else {
@@ -322,6 +364,11 @@ public class Procesador {
 			}
 			else if(operacion == 'a'){
 				//System.out.println("Aceptado");
+				imprimirPilaSimbolos();
+				System.out.println();
+				System.out.println(TGlobal);
+				System.out.println();
+				System.out.println(TLocal);
 				return;
 			}
 			else {
@@ -377,10 +424,17 @@ public class Procesador {
 		
 		Map<String,Object> atributos = new HashMap<String,Object>();
 		Map<String,Object> atributosIDS = new HashMap<String,Object>();
-		String [] atrs = {"lexema","tipo","desp","tipoParam","tipoRet","etiq","info"};
+		String [] atrs = {"lexema","tipo","desp","tipoParam","tipoRet","etiq","info","pos"};
 		for (int i = 0; i < 8; i++){
-			atributos.put(atrs[0], "");
-			atributosIDS.put(atrs[0], "");
+			if (atrs[i].equals("tipoParam")){
+				atributos.put(atrs[i], new ArrayList<String>());
+			atributosIDS.put(atrs[i], new ArrayList<String>());
+			}
+			else {
+				atributos.put(atrs[i], "");
+				atributosIDS.put(atrs[i], "");
+			}
+			
 		}
 		atributos.put("lexema", antecedente);
 		String id;
@@ -434,16 +488,18 @@ public class Procesador {
 				System.out.println("CONTENIDO" + pilaAtributos.get(cima-1).get("tipoParam"));
 				ArrayList<String> auxiliar = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (auxiliar.size() == 0){
+					System.out.println("inicializo a 1");
 					atributos.put("numParam", 1);
 					ArrayList<String> auxiliar1 = new ArrayList<String>();
-					auxiliar1.add((String) pilaAtributos.get(cima-5).get("numParam"));
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
 					atributos.put("tipoParam", auxiliar1);
 				}
 				else {
-					int numParam = Integer.valueOf((String) pilaAtributos.get(cima-1).get("numParam"));
+					int numParam = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
+					System.out.println("NUM PARAM = " + numParam);
 					atributos.put("numParam", numParam);
 					ArrayList<String> auxiliar1 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
-					auxiliar1.add((String) pilaAtributos.get(cima-5).get("numParam"));
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
 					atributos.put("tipoParam", auxiliar1);
 				}
 				break;
@@ -457,6 +513,7 @@ public class Procesador {
 
 				atributosIDS.put("lexema", id);
 				atributosIDS.put("tipo", (String) pilaAtributos.get(cima-7).get("tipo"));
+				atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 				if(GlobalActiva){
 					atributosIDS.put("desp", despG);
 					TGlobal.put(id, atributosIDS);
@@ -582,6 +639,7 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-7).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
@@ -594,11 +652,20 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-7).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
-				} 
+				}
+				atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-7, atributosIDS);
+				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
+					atributos.put("tipo", "tipo_ok");
+				}
+				else {
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores
+				}
 				break;
 
 			case 14:
@@ -619,6 +686,7 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-7).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
@@ -631,6 +699,7 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-7).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
@@ -760,6 +829,7 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
@@ -772,10 +842,12 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
-				} 
+				}
+				atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
 				break;
 			case 20:
@@ -792,6 +864,7 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
@@ -804,14 +877,20 @@ public class Procesador {
 						atributosIDS.put("lexema", id);
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
+						atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
 				} 
+				atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
 				break;
 			case 21:
 				atributos.put("tipo", (String) pilaAtributos.get(cima-1).get("tipo"));
+				Map<String,Object> aux = TGlobal.get(funcActual);
+				aux.put("numParam", pilaAtributos.get(cima-3).get("numParam"));
+				aux.put("tipoParam", pilaAtributos.get(cima-3).get("tipoParam"));
+				TGlobal.put(funcActual, aux);
 				//BUFFER
 				bufferTS.add(new ParFunc((String) pilaAtributos.get(cima-5).get("info"), new HashMap<String,Map<String,Object>>(TLocal)));
 				TLocal.clear();
@@ -887,15 +966,16 @@ public class Procesador {
 				ArrayList<String> auxiliar2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (auxiliar2.size() == 0){
 					atributos.put("numParam", 1);
+					System.out.println("inicializo a 1 aqui");
 					ArrayList<String> auxiliar1 = new ArrayList<String>();
-					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
 					atributos.put("tipoParam", auxiliar1);
 				}
 				else {
-					int numParam = Integer.valueOf((String) pilaAtributos.get(cima-1).get("tipoParam"));
+					int numParam = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
 					atributos.put("numParam", numParam);
 					ArrayList<String> auxiliar1 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
-					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipoParam"));
+					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
 					atributos.put("tipoParam", auxiliar1);
 				}
 				break;
@@ -913,7 +993,8 @@ public class Procesador {
 					atributos.put("numParam", 1);
 				}
 				else {
-					int numParametros = Integer.valueOf((String) pilaAtributos.get(cima-1).get("numParam")) + 1;
+					int numParametros = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
+					System.out.println("NUM PARAM = " + numParametros);
 					atributos.put("numParam", numParametros);
 					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
@@ -1009,7 +1090,7 @@ public class Procesador {
 				id = (String) pilaAtributos.get(cima-1).get("lexema");
 				System.out.println(id+ " SI DA NULL ESTA MAL");
 				boolean encontrado;
-				if (!GlobalActiva){	
+				if (!GlobalActiva){	// si no estamos en la global
 					encontrado = TLocal.containsKey(id);
 					System.out.println(encontrado+" PRUEBA " + id);
 					if(encontrado){
@@ -1024,6 +1105,7 @@ public class Procesador {
 							atributosIDS.put("tipo", "ent");
 							atributosIDS.put("desp", despG);
 							atributosIDS.put("tipoParam", new ArrayList<String>());
+							atributosIDS.put("pos", pilaAtributos.get(cima-1).get("pos"));
 							TGlobal.put(id, atributosIDS);
 							despG++;
 						}
@@ -1032,6 +1114,7 @@ public class Procesador {
 				else {
 					encontrado = TGlobal.containsKey(id);
 					if(encontrado){
+						System.out.println("ESTAMOS AQUI TIO: " + TGlobal);
 						atributosIDS=TGlobal.get(id);
 					}
 					else{
@@ -1039,11 +1122,13 @@ public class Procesador {
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
 						atributosIDS.put("tipoParam", new ArrayList<String>());
+						atributosIDS.put("pos", pilaAtributos.get(cima-1).get("pos"));
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
 					
 				}
+				atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-1, atributosIDS);
 				break;
 			
