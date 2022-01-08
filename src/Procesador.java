@@ -1,7 +1,6 @@
 import java.io.BufferedReader;
 import java.io.File;
 import java.io.IOException;
-import java.io.ObjectInputStream.GetField;
 import java.io.FileWriter;
 import java.io.FileReader;
 import java.util.*;
@@ -148,8 +147,10 @@ public class Procesador {
 								}
 							}
 							else{ //Existe en la local (existente = true) para la local
+								System.out.println(TLocal);
+								System.out.print("A VER SI ES NULL ");
 								pos = (Integer)TLocal.get(cadena).get("pos"); //Existe en la local
-								
+								System.out.println(pos);
 							}
 						}
 						if(!existente){ //No existe el identificador y no estamos en zona de declaracion por lo que es un entero
@@ -299,23 +300,34 @@ public class Procesador {
 					System.out.println(GlobalActiva);
 					if (!GlobalActiva){ //Si no esta activa la tabla
 						encontrado = TLocal.containsKey(ListTL.get(id));
-						if (!encontrado && TGlobal.containsKey(ListTG.get(id))){
+						if (encontrado){
 							System.out.println("dentro");
+							atributos = TLocal.get(ListTL.get(id));
+							System.out.println("COSAS");
+							System.out.println(ListTL);
+							System.out.println(TLocal);
+							System.out.println(atributos);
+						}
+						else if(TGlobal.containsKey(ListTG.get(id))){
+							System.out.println("medio");
 							atributos = TGlobal.get(ListTG.get(id));
 						}
 						else {
 							System.out.println("fuera");
-							atributos.put("lexema",""+id);
+							atributos.put("lexema",ListTL.get(id));
 						}
 					}
 					else if (TGlobal.containsKey(ListTG.get(id))){
+						System.out.println("CHIVATON1");
 						atributos = TGlobal.get(ListTG.get(id));
 					}
 					else {
+						System.out.println("CHIVATON2");
 						atributos.put("lexema", ListTG.get(id));
 					}
 				}
 				else {
+					System.out.println("CHIVATON3");
 					atributos.put("lexema", simbolo);
 				}
 				pilaAtributos.push(atributos);
@@ -329,9 +341,9 @@ public class Procesador {
 				else if (simbolo.equals(";")){
 					ASemantico("-1");
 				}
-				else if (simbolo.equals(")") && pilaAtributos.get(pilaAtributos.size()-8).get("lexema").equals("if")){
-					ASemantico("-2");
-				}
+				// else if (simbolo.equals(")") && pilaAtributos.get(pilaAtributos.size()-8).get("lexema").equals("if")){
+				// 	ASemantico("-2");
+				// }
 				token = ALexico();
 				//System.out.println("token\t"+token);
 				simbolo = obtenerLexema(token);
@@ -405,18 +417,18 @@ public class Procesador {
 		
 		int cima = pilaAtributos.size()-1;
 
-		if (regla.equals("-2")){
-			Map<String,Object> atributos = pilaAtributos.get(cima-3);
-			if(atributos.get("tipo").equals("log")){
-				atributos.put("tipo", "tipo_ok");
-				pilaAtributos.set(cima-3,atributos);
-			} else{
-				atributos.put("tipo", "tipo_error");
-					pilaAtributos.set(cima-3,atributos);
-					//generar error 5
-			}
-			return;
-		}
+		// if (regla.equals("-2")){
+		// 	Map<String,Object> atributos = pilaAtributos.get(cima-3);
+		// 	if(atributos.get("tipo").equals("log")){
+		// 		atributos.put("tipo", "log");
+		// 		pilaAtributos.set(cima-3,atributos);
+		// 	} else{
+		// 		atributos.put("tipo", "tipo_error");
+		// 			pilaAtributos.set(cima-3,atributos);
+		// 			//generar error 5
+		// 	}
+		// 	return;
+		// }
 
 		String[] linea = consecuentes[Integer.parseInt(regla)].split(":");
 		int k = Integer.parseInt(linea[1]);
@@ -424,18 +436,23 @@ public class Procesador {
 		
 		Map<String,Object> atributos = new HashMap<String,Object>();
 		Map<String,Object> atributosIDS = new HashMap<String,Object>();
-		String [] atrs = {"lexema","tipo","desp","tipoParam","tipoRet","etiq","info","pos"};
-		for (int i = 0; i < 8; i++){
+		String [] atrs = {"lexema","tipo","desp","tipoParam","tipoRet","etiq","info","pos","numParam"};
+		for (int i = 0; i < 9; i++){
 			if (atrs[i].equals("tipoParam")){
 				atributos.put(atrs[i], new ArrayList<String>());
-			atributosIDS.put(atrs[i], new ArrayList<String>());
+				atributosIDS.put(atrs[i], new ArrayList<String>());
+			}
+			else if (atrs[i].equals("numParam")){
+				atributos.put(atrs[i], 0);
+				atributosIDS.put(atrs[i], 0);
 			}
 			else {
 				atributos.put(atrs[i], "");
 				atributosIDS.put(atrs[i], "");
 			}
-			
 		}
+				
+
 		atributos.put("lexema", antecedente);
 		String id;
 		
@@ -483,6 +500,9 @@ public class Procesador {
 				map.put("tipo",tipoVariable);
 				map.put("desp", despL);	
 				map.put("tipoParam", new ArrayList<String>());
+				map.put("pos", pilaAtributos.get(cima-3).get("pos"));
+				map.put("lexema", id);
+				map.put("numParam", 0);
 				TLocal.put(id, map);
 				despL = despL + (Integer)pilaAtributos.get(cima-5).get("desp");
 				System.out.println("CONTENIDO" + pilaAtributos.get(cima-1).get("tipoParam"));
@@ -548,7 +568,7 @@ public class Procesador {
 				break;
 			case 9:
 				if(!pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") &&
-					pilaAtributos.get(cima-9).get("tipo").equals("tipo_ok")&&
+					!pilaAtributos.get(cima-9).get("tipo").equals("tipo_error")&&
 					pilaAtributos.get(cima-13).get("tipo").equals("log") &&
 					pilaAtributos.get(cima-17).get("tipo").equals("tipo_ok")){
 						atributos.put("tipo", "tipo_ok");
@@ -595,13 +615,16 @@ public class Procesador {
 					}
 				}
 				pilaAtributos.set(cima-9, atributosIDS);
+				System.out.println("imprimir atributos");
+				imprimirPilaSimbolos();
 				if(atributosIDS.get("tipo").equals("func")){
 					String nombreFuncion = (String) pilaAtributos.get(cima-9).get("lexema");
-					if(pilaAtributos.get(cima-5).get("tipo").equals("func")){
-						String numeroParams = (String) atributosIDS.get("numParam");
+					if(pilaAtributos.get(cima-9).get("tipo").equals("func")){
+						Integer numeroParams = (Integer)atributosIDS.get("numParam");
 						ArrayList<String> tipoParametros = (ArrayList<String>) atributosIDS.get("tipoParam");
 						ArrayList<String> tipoParametrosL = (ArrayList<String>) pilaAtributos.get(cima-5).get("tipoParam");
-						if(pilaAtributos.get(cima-5).get("numParam").equals(numeroParams) &&
+						System.out.println(TGlobal);
+						if(pilaAtributos.get(cima-9).get("numParam").equals(numeroParams) &&
 								tipoParametrosL.equals(tipoParametros)){
 							atributos.put("tipo", "tipo_ok");
 						}
@@ -847,8 +870,17 @@ public class Procesador {
 						despG++;
 					}
 				}
-				atributos = new HashMap<>(atributosIDS);
+				//atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
+				System.out.println("atributos");
+				System.out.println(atributosIDS);
+				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
+					atributos.put("tipo", "tipo_ok");
+				}
+				else {
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores
+				}
 				break;
 			case 20:
 				id = (String) pilaAtributos.get(cima-5).get("lexema");
@@ -882,15 +914,20 @@ public class Procesador {
 						despG++;
 					}
 				} 
-				atributos = new HashMap<>(atributosIDS);
+				//atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
+				System.out.println("atributos");
+				System.out.println(atributosIDS);
+				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
+					atributos.put("tipo", "tipo_ok");
+				}
+				else {
+					atributos.put("tipo", "tipo_error");
+					//gestor de errores
+				}
 				break;
 			case 21:
 				atributos.put("tipo", (String) pilaAtributos.get(cima-1).get("tipo"));
-				Map<String,Object> aux = TGlobal.get(funcActual);
-				aux.put("numParam", pilaAtributos.get(cima-3).get("numParam"));
-				aux.put("tipoParam", pilaAtributos.get(cima-3).get("tipoParam"));
-				TGlobal.put(funcActual, aux);
 				//BUFFER
 				bufferTS.add(new ParFunc((String) pilaAtributos.get(cima-5).get("info"), new HashMap<String,Map<String,Object>>(TLocal)));
 				TLocal.clear();
@@ -920,6 +957,10 @@ public class Procesador {
 
 			case 23:
 				//atributos.put("lexema", funcActual);
+				Map<String,Object> aux = TGlobal.get(funcActual);
+				aux.put("numParam", pilaAtributos.get(cima-3).get("numParam"));
+				aux.put("tipoParam", pilaAtributos.get(cima-3).get("tipoParam"));
+				TGlobal.put(funcActual, aux);
 				System.out.println(pilaAtributos.get(cima-3));
 				atributos.put("numParam", (Integer)pilaAtributos.get(cima-3).get("numParam"));
 				atributos.put("tipoParam", (ArrayList<String>) pilaAtributos.get(cima-3).get("tipoParam"));
@@ -961,6 +1002,9 @@ public class Procesador {
 				map1.put("tipo",tipoVariable1);
 				map1.put("desp", despL);
 				map1.put("tipoParam", new ArrayList<>());
+				map1.put("pos", pilaAtributos.get(cima-3).get("pos"));
+				map1.put("lexema", id);
+				map1.put("numParam", 0);
 				TLocal.put(id, map1);
 				despL = despL + (Integer)pilaAtributos.get(cima-5).get("desp");
 				ArrayList<String> auxiliar2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
@@ -998,6 +1042,7 @@ public class Procesador {
 					atributos.put("numParam", numParametros);
 					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
+					atributos.put("tipoParam", parametros);
 				}
 				break;
 
@@ -1014,10 +1059,11 @@ public class Procesador {
 					atributos.put("numParam", 1);
 				}
 				else {
-					int numParametros = Integer.valueOf((String) pilaAtributos.get(cima-1).get("numParam")) + 1;
+					int numParametros = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
 					atributos.put("numParam", numParametros);
 					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
+					atributos.put("tipoParam", parametros);
 				}
 				break;
 			case 34:
@@ -1056,6 +1102,9 @@ public class Procesador {
 
 			case 41:
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
+				System.out.println("regla41");
+				imprimirPilaSimbolos();
+				System.out.println("regla41");				
 				break;
 
 			case 42:
@@ -1087,8 +1136,13 @@ public class Procesador {
 				break;
 			
 			case 46:
+				System.out.println("*****");
+				imprimirPilaSimbolos();
+				System.out.println("*****");
 				id = (String) pilaAtributos.get(cima-1).get("lexema");
 				System.out.println(id+ " SI DA NULL ESTA MAL");
+				System.out.println(TGlobal);
+				System.out.println("local " + TLocal);
 				boolean encontrado;
 				if (!GlobalActiva){	// si no estamos en la global
 					encontrado = TLocal.containsKey(id);
@@ -1102,6 +1156,7 @@ public class Procesador {
 						}
 						else{
 							atributosIDS.put("lexema", id);
+							System.out.println("LO PONGO A ENTERO");
 							atributosIDS.put("tipo", "ent");
 							atributosIDS.put("desp", despG);
 							atributosIDS.put("tipoParam", new ArrayList<String>());
@@ -1119,6 +1174,7 @@ public class Procesador {
 					}
 					else{
 						atributosIDS.put("lexema", id);
+						System.out.println("LO PONGO A ENTERO");
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
 						atributosIDS.put("tipoParam", new ArrayList<String>());
@@ -1134,18 +1190,29 @@ public class Procesador {
 			
 			case 47:
 				id = (String) pilaAtributos.get(cima-7).get("lexema");
-				String tipoParametros = (String) pilaAtributos.get(cima-3).get("tipo");
+				Integer numParametros = (Integer)pilaAtributos.get(cima-3).get("numParam");
+				ArrayList<String> tipoParametros = (ArrayList<String>)pilaAtributos.get(cima-3).get("tipoParam");
+				
 				if (GlobalActiva){
-					if (TGlobal.get(id).get("tipo").equals(tipoParametros)){
-						atributos.put("tipo", tipoParametros);
+					if (TGlobal.get(id).get("numParam").equals(numParametros) && 
+						TGlobal.get(id).get("tipoParam").equals(tipoParametros) ){
+							atributos.put("tipo", pilaAtributos.get(cima-7).get("tipoRet"));
+							atributos.put("numParam", numParametros);
+							atributos.put("tipoParam", tipoParametros);
 					}
 					else {
 						atributos.put("tipo", "tipo_error");
 					}
 				}
 				else {
-					if (TLocal.get(id).get("tipo").equals(tipoParametros)){
-						atributos.put("tipo", tipoParametros);
+					System.out.println("LA GLOBAL ES  " + id);
+					System.out.println(numParametros + " , " + tipoParametros);
+					System.out.println(TGlobal);
+					if (TGlobal.get(id).get("numParam").equals(numParametros) && 
+						TGlobal.get(id).get("tipoParam").equals(tipoParametros) ){
+							atributos.put("tipo", pilaAtributos.get(cima-7).get("tipoRet"));
+							atributos.put("numParam", numParametros);
+							atributos.put("tipoParam", tipoParametros);
 					}
 					else {
 						atributos.put("tipo", "tipo_error");
@@ -1191,8 +1258,8 @@ public class Procesador {
 	}
 
 	private static void imprimirPilaSimbolos(){
-		int j = 0;
-		for (int i=pilaAtributos.size()-1; i>=0;i--){
+		int j = 1;
+		for (int i=pilaAtributos.size()-2; i>=0;i = i - 2){
 			System.out.print("cima-"+j +": LEXEMA = "+ pilaAtributos.get(i).get("lexema")+"\t");
 			System.out.print("TIPO = "+ pilaAtributos.get(i).get("tipo")+"\t");
 			System.out.print("DESP = "+ pilaAtributos.get(i).get("desp")+"\t");
@@ -1200,7 +1267,7 @@ public class Procesador {
 			System.out.print("TIPOPARAM = "+ pilaAtributos.get(i).get("tipoParam")+"\t");
 			System.out.print("TIPORET = "+ pilaAtributos.get(i).get("tipoRet")+"\t");
 			System.out.println("INFO = "+ pilaAtributos.get(i).get("info")+"\t");
-			j++;
+			j = j + 2;
 		}
 	}
 
