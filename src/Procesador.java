@@ -929,7 +929,7 @@ public class Procesador {
 			case 21:
 				atributos.put("tipo", (String) pilaAtributos.get(cima-1).get("tipo"));
 				//BUFFER
-				bufferTS.add(new ParFunc((String) pilaAtributos.get(cima-5).get("info"), new HashMap<String,Map<String,Object>>(TLocal)));
+				bufferTS.add(new ParFunc(funcActual, new HashMap<String,Map<String,Object>>(TLocal)));
 				TLocal.clear();
 				System.out.println("cambio a null");
 				funcActual = null;
@@ -1237,24 +1237,24 @@ public class Procesador {
 		pilaAtributos.push(new HashMap<String,Object>());
 		
 
-		if (regla.equals("23n")){
+		// if (regla.equals("23n")){
 			
-			cima = pilaAtributos.size() - 1;
-			id = (String) pilaAtributos.get(cima-3).get("info");
-			pilaAtributos.get(cima-1).put("info", id);
-			Map<String,Object> at = TGlobal.get(id);
-			imprimirPilaSimbolos();
-			System.out.println(TGlobal);
-			System.out.println(id);
-			at.put("numParam", pilaAtributos.get(cima-1).get("numParam"));
-			at.put("tipoParam", pilaAtributos.get(cima-1).get("tipoParam"));
-			TGlobal.put(id, at);
-		}
+		// 	cima = pilaAtributos.size() - 1;
+		// 	id = (String) pilaAtributos.get(cima-3).get("info");
+		// 	pilaAtributos.get(cima-1).put("info", id);
+		// 	Map<String,Object> at = TGlobal.get(id);
+		// 	imprimirPilaSimbolos();
+		// 	System.out.println(TGlobal);
+		// 	System.out.println(id);
+		// 	at.put("numParam", pilaAtributos.get(cima-1).get("numParam"));
+		// 	at.put("tipoParam", pilaAtributos.get(cima-1).get("tipoParam"));
+		// 	TGlobal.put(id, at);
+		// }
 		
 	}
 	private static String generarEtiqueta() {
 		nEtiqueta++;
-		return (nEtiqueta - 1) + "";
+		return "EtiqFuncion" + (nEtiqueta - 1);
 	}
 
 	private static void imprimirPilaSimbolos(){
@@ -1517,18 +1517,92 @@ public class Procesador {
 		}
 		return pos;
 	}
-	
+
+	@SuppressWarnings("unchecked")
 	private static void imprimirTablaSimbolos() {
 		try {
+			Set<String> set1 = TGlobal.keySet();
+			ArrayList<Pair<String,Integer>> pares = new ArrayList<>();
+			for (String c : set1){
+				pares.add(new Pair<String,Integer>((String)c,(Integer)TGlobal.get(c).get("pos")));
+			}
+			Collections.sort(pares);
+			System.out.println(pares);
+			FichTablaSimb.write("TABLA DE SIMBOLOS GLOBAL #1\n");
+			FichTablaSimb.write("\n");
+			for (Pair<String,Integer> par : pares){
+				FichTablaSimb.write("* LEXEMA : '" + par.getLeft() + "'\n");
+				FichTablaSimb.write("  \tAtributos :\n");
+				int j = 0;
+				if (TGlobal.get(par.getLeft()).get("tipo").equals("func")){
+					FichTablaSimb.write("  \t\t+ tipo: 'func'\n");
+					FichTablaSimb.write("  \t\t+ tipoRet: '" + TGlobal.get(par.getLeft()).get("tipoRet") + "'\n");
+					FichTablaSimb.write("  \t\t+ numParam: '" + TGlobal.get(par.getLeft()).get("numParam") + "'\n");
+					ArrayList<String> tipos = (ArrayList<String>)TGlobal.get(par.getLeft()).get("tipoParam");
+					for (int i = (Integer)TGlobal.get(par.getLeft()).get("numParam") - 1; i >= 0; i--){
+						FichTablaSimb.write("  \t\t+ tipoParam" + j + ": '" + tipos.get(i) + "'\n");
+						j++;
+					}
+					FichTablaSimb.write("  \t\t+ etiq: '" + TGlobal.get(par.getLeft()).get("etiq") + "'\n");
+				}
+				else {
+					FichTablaSimb.write("  \t\t+ tipo: '" + TGlobal.get(par.getLeft()).get("tipo") + "'\n");
+					FichTablaSimb.write("  \t\t+ despl: '" + TGlobal.get(par.getLeft()).get("desp") + "'\n");
+				}
+
+			}
+			
+			
 			
 			for(int i=0; i<bufferTS.size();i++){
-				//tablaSimbolos = bufferTS.get(i).getTablaSimbolos()
+				pares.clear();
+				Set<String> set = bufferTS.get(i).getTablaSimbolos().keySet();
+				for (String c : set){
+					pares.add(new Pair<String,Integer>((String)c,(Integer)bufferTS.get(i).getTablaSimbolos().get(c).get("pos")));
+				}
+				System.out.println("Tabla " + bufferTS.get(i).getId());
+				Collections.sort(pares);
+				System.out.println(pares);
+				
+				for (String c : set){
+					System.out.println(c + ": " + bufferTS.get(i).getTablaSimbolos().get(c));
+				}
 			}
 
 		} catch (Exception e) {
 			e.printStackTrace();
 		}	
 	}
+
+	private static void itS(){
+		Map<String,Object> atributos;
+		String lexema;
+		Map<String, Map<String,Object>> tabla;
+		Iterator it;
+		try {
+			for(int i=0; i<bufferTS.size();i++){
+				tabla = bufferTS.get(i).getTablaSimbolos();
+				it = tabla.keySet().iterator();
+				if(i==0){
+					FichTablaSimb.write("TABLA DE SIMBOLOS GLOBAL #1\n");
+				}
+				else{
+					FichTablaSimb.write("TABLA DE SIMBOLOS "+bufferTS.get(i).getId()+"#"+(i+1)+"\n");
+				}
+				while(it.hasNext()){
+					lexema = (String)it.next();
+					atributos= tabla.get(lexema);
+
+				}
+				}
+
+			
+
+		} catch (Exception e) {
+			e.printStackTrace();
+		}	
+	}
+	
 
 	public static void main (String [] args) {
 		palRes = new HashMap<>();
@@ -1554,7 +1628,7 @@ public class Procesador {
 			e.printStackTrace();
 		}
 		ASintactico();
-		//imprimirTablaSimbolos();
+		imprimirTablaSimbolos();
 		try {
 			fr.close();
 			bf.close();
