@@ -28,16 +28,13 @@
                             then tipo_ok
                             else tipo_error }
                             
-7. B -> if ( E ){if (E.tipo = log)
-                    then E.tipo := tipo_ok
-                    else E.tipo := tipo_error}
-         C      {B.tipo := if(E.tipo = C.tipo = tipo_ok)
+7. B -> if ( E ) C      {B.tipo := if(E.tipo = log && C.tipo = tipo_ok)
                             then tipo_ok
                             else tipo_error}
                             
 8. B -> C {B.tipo := C.tipo}
 
-9. B -> for ( D1 ; E ; D2 ) { G } { B.tipo := if (E.tipo = log and D1.tipo = tipo_ok and D2.tipo = tipo_ok)
+9. B -> for ( D1 ; E ; D2 ) { G } { B.tipo := if (E.tipo = log and D1.tipo = tipo_ok and D2.tipo = tipo_ok and G.tipo != tipo_error)
                                                 then tipo_ok    
                                                 else tipo_error}
 10. B1 -> = E {B1.tipo := E.tipo}
@@ -90,7 +87,7 @@
                 id.tipo := BuscarTipoTS(id.pos),
                 C.tipo := if(id.tipo = ent or id.tipo = cad ) then tipo_ok else tipo_error() }
 
-17. C -> return X {if (TSG != NULL)
+17. C -> return X ;{if (TSG != NULL)
                         then {
                             tipoRet := BuscarTipoRetTSG(funcActual)
                             if (R.tipo = tipo_error)
@@ -103,7 +100,7 @@
                                 S.tipo := tipo_error(), S.tipo_error() 
                         }
                     else
-                        C.tipo := tipo_ok, C.tipoRet := X.tipo};
+                        C.tipo := tipo_ok, C.tipoRet := X.tipo}
                         
 18. D -> lambda {D.tipo := tipo_vacio}
 
@@ -115,7 +112,12 @@
                    insertarTipoParamTSG(F1.idPos, F2.tipoParam)}
                   F3 {F.tipo := F3.tipo, destruirTS(TSL), funcActual := NULL TSActual:= TSG}
                   
-22. F1 -> function {zonaDecl := true} id H
+22. F1 -> function {zonaDecl := true} id H {TSL := CrearTS(), TSActual := TSL,
+                                            funcActual := id, despL := 0,
+                                            insertarTipoTSG(id.pos,H.tipo),
+                                            insertarEtiqTSG(id.pos,nuevaEtiq(),
+                                            F1.tipoRet := H.tipo,
+                                            F1.idPos := id.pos)}
 
 23. F2 -> ( A ) {F2.numParam := A.numParam, F2.tipoParam := A.tipoParam, zonaDecl := false}
 
@@ -139,7 +141,7 @@
                  then K.tipoParam := T.tipo, K.numParam := 1
                  else K.tipoParam := T.tipo x K1.tipoParam, K.numParam := K1.numParam+1}
                  
-30. K -> lambda {K.tipo := tipo_vacio}
+30. K -> lambda {K.tipoParam := tipo_vacio}
 
 31. L -> E Q {if (Q.tipoParam = tipo_vacio)
                 then L.tipoParam := E.tipo, L.numParam := 1
@@ -169,7 +171,7 @@
 
 41. E -> E1 {E.tipo := E1.tipo}
 
-42. E1 -> E1 - E3 {E1.tipo := if(E1.tipo = ent && E3.tipo = ent)
+42. E1 -> E11 - E3 {E1.tipo := if(E11.tipo = ent && E3.tipo = ent)
                                     then ent
                               else 
                                     tipo_error()}

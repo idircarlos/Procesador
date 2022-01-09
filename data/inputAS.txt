@@ -1,15 +1,12 @@
-let int   a   ;
-let int    b  ;
-let int number;
-print ( 'Introduce el primer operando' );
-input (a);
-print ('Introduce el segundo operando');input(b);
-function operacion
- int (int num1_, int num2_)
+function boolean (int d, int m, int a)	
 {
-	let int number;
-	number = 88 - num1_-num2_;
-	return number;
+	return (d < dias (m, a));
 }
-number = operacion (a, b);
-print (number);
+function demo ()	
+{
+
+	if (esFechaCorrecta(25, 10, 2021)) print ('OK');
+	
+}
+let int aaa111;
+demo();

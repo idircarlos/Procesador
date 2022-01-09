@@ -1,0 +1,10 @@
+let int n12;let int n2;
+
+function ff boolean(boolean ss){
+    for (n1 = 1; ss; n1 = n1 - 2){
+        print(2);
+    }
+    return ss;
+}		
+ff(ss,12);
+

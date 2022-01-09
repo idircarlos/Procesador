@@ -107,3 +107,103 @@ function operacion int(int num2,int num1)
 number = operacion (a, b);
 print (number);
 ---------------------------------------------------
+
+Prueba 1 AN SINTÁCTICO
+---------------------------------------------------
+let string texto;
+function pideTexto ()
+{
+	print ('Introduce un texto');
+	input (texto);
+}
+function alert (string msg)
+{
+	print ('Texto introducido:');
+	print (msg);
+}
+pideTexto();
+  alert
+	(texto);
+---------------------------------------------------
+
+Prueba 2 AN SINTÁCTICO
+---------------------------------------------------
+let string texto;
+function pideTexto ()
+{
+	print ('Introduce una palabra');
+	input (texto);
+}
+function alert (string msg)
+{
+	print (msg);
+}
+pideTexto();
+  alert
+	(texto);
+---------------------------------------------------
+
+Prueba 3 AN SINTÁCTICO
+---------------------------------------------------
+let int a;
+let   int  b;
+let boolean bbb;
+a = 3;
+b=a					    		 	 	 	 	 	 	 	 	 	 	 	 	 	 	 													;
+let boolean c;
+c = a < b;
+if (c) b = 1;
+if (b < a) b %= 44;
+a = a - b;
+print (a) ;
+print(b);
+---------------------------------------------------
+Prueba 4 AN SINTÁCTICO
+---------------------------------------------------
+let int x;
+let boolean b;
+let int z;
+input (x);
+print (x);
+input (z);
+b=x<z;if (b)
+x =
+  x - 6
+    - z
+    - 1
+    - (2
+    - y
+    - 7);
+---------------------------------------------------
+Prueba 5 AN_SINTÁCTICO
+
+let boolean booleano;
+function bisiesto boolean (int a)	
+{	let string bis;
+	print ('Es bisiesto?');
+	input(bis);
+	return (!(a - 4 < 0));	
+}
+function dias int (int m, int a)
+{
+	let int dd;
+	print ('di cuantos dias tiene el mes ');
+	print (m);
+	input(dd);
+	if (bisiesto(a)) dd = dd - 1;
+	return dd;
+}
+
+print (4-5-77);
+function esFechaCorrecta boolean (int d, int m, int a)	
+{
+	return (d < dias (m, a));
+}
+function demo ()	
+{
+
+	if (esFechaCorrecta(25, 10, 2021)) print ('OK');
+	
+}
+let int aaa111;
+demo();

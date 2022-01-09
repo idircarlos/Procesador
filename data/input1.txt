@@ -1,15 +1,30 @@
-let int   a   ;
-let int    b  ;
-let int number;
-print ( 'Introduce el primer operando' );
-input (a);
-print ('Introduce el segundo operando');input(b);
-function operacion
- int (int num1_, int num2_)
-{
-	let int number;
-	number = 88 - num1_-num2_;
-	return number;
+let boolean booleano;   
+function bisiesto boolean (int a)
+{    let string bis;
+    print ('Es bisiesto?');
+    input(bis);
+    return (!(a - 4 < 0));
 }
-number = operacion (a, b);
-print (number);
+function dias int (int m, int a)
+{
+    let int dd;
+    print ('di cuantos dias tiene el mes ');
+    print (m);
+    input(dd);
+    if (bisiesto(a)) dd = dd - 1;
+    return dd;
+}
+
+print (4-5-77);
+function esFechaCorrecta boolean (int d, int m, int a)
+{
+    return (d < dias (m, a));
+}
+function demo ()
+{
+
+    if (esFechaCorrecta(25, 10, 2021)) print ('OK');
+
+}
+let int aaa111;
+demo();

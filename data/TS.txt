@@ -1,7 +1,33 @@
-Tabla Simbolos Global #1:
-* LEXEMA : 'a'
-* LEXEMA : 'b'
-* LEXEMA : 'number'
-* LEXEMA : 'operacion'
-* LEXEMA : 'num1_'
-* LEXEMA : 'num2_'
+TABLA DE SIMBOLOS GLOBAL #1 :
+
+* LEXEMA : 'n12'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+* LEXEMA : 'n2'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+* LEXEMA : 'ff'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'log'
+  		+ numParam: 1
+  		+ TipoParam1: 'log'
+  		+ EtiqFuncion: 'EtiqFuncion1'
+* LEXEMA : 'n1'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 2
+* LEXEMA : 'ss'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 3
+-----------------------------------------
+TABLA ff #2 :
+
+* LEXEMA : 'ss'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 0
+-----------------------------------------

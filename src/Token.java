@@ -17,7 +17,6 @@ public class Token {
 	}
 
 	public String toString() {
-		if (val == null) val = new String("");
 		return "<" + id + "," + val + ">";
 	}
 	
