@@ -6,15 +6,15 @@
 9. B -> for ( D1 ; E ; D2 ) { G } // 24 25 26 27 error de especifidad
 12. C -> id ( L ) ; //30 31 51
 13. C -> id %= E ; //28
-14. C -> id = E ; //28
+14. C -> id = E ; //29
 15. C -> print ( E ) ; // 32
 16. C -> input ( id ) ; // 33
 17. C -> return X ; //34 35
-19. D -> id %= E //29
-20. D -> id = E //29
-21. F -> F1 F2 F3
+19. D -> id %= E // 28
+20. D -> id = E // 29
+21. F -> F1 F2 F3 // 41
 
-40. E -> E < E1
-42. E1 -> E11 - E3
+40. E -> E < E1 // 44
+42. E1 -> E11 - E3 //44
 44. E3 -> ! E3      // 45 y no se si mas
 47. E3 -> id ( L )  // 50

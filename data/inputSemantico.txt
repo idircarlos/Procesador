@@ -1,10 +1,64 @@
-let int n12;let int n2;
+/// prueba correcta
 
-function ff boolean(boolean ss){
-    for (n1 = 1; ss; n1 = n1 - 2){
-        print(2);
-    }
-    return ss;
-}		
-ff(ss,12);
 
+//* 2 funciones raras /
+
+function fF int (int Ff)
+{
+    print (Ff-1);
+}
+
+function Ff int (int FF)
+{
+    let boolean A4A;
+    if (A4A)
+    return (fF(Ff(FF)));
+}
+
+let int entero;
+let string cadena;
+let boolean logico;
+let int a0b1c2d3e4f5g6h7i8j9k;
+function FuncionNumero ()
+{
+  let boolean i;
+
+  i = logico;
+  logico=!logico;
+  i = ! logico;
+}
+function FuncionRetorno string (string otracadena, int x, boolean z)
+{
+  x = 33 - (x - entero); return otracadena;
+}
+function FuncionSentencia (int b, boolean z)
+{
+  for (b=1 ; z; )
+  {
+    print (88);
+  }
+}
+function Funcion (int x, boolean b)
+{
+    if (x < 0)FuncionSentencia(x__,b);
+  print 
+    (cadena);return;
+}
+let int iii;
+let boolean bbb;
+// esto
+// es
+// un
+// comentario !
+//// multi **/
+//línea 
+input(iii);
+print  (  iii  )  ;
+
+iii %= iii;
+bbb = bbb;
+
+Funcion
+ ( iii, 
+   bbb )
+;

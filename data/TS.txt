@@ -1,32 +1,137 @@
 TABLA DE SIMBOLOS GLOBAL #1 :
 
-* LEXEMA : 'n12'
+* LEXEMA : 'fF'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'ent'
+  		+ numParam: 1
+  		+ TipoParam1: 'ent'
+  		+ EtiqFuncion: 'EtiqFuncion1'
+* LEXEMA : 'Ff'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'ent'
+  		+ numParam: 1
+  		+ TipoParam1: 'ent'
+  		+ EtiqFuncion: 'EtiqFuncion2'
+* LEXEMA : 'entero'
   	Atributos :
   		+ tipo: 'ent'
   		+ despl: 0
-* LEXEMA : 'n2'
+* LEXEMA : 'cadena'
+  	Atributos :
+  		+ tipo: 'cad'
+  		+ despl: 1
+* LEXEMA : 'logico'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 65
+* LEXEMA : 'a0b1c2d3e4f5g6h7i8j9k'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 66
+* LEXEMA : 'FuncionNumero'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'tipo_vacio'
+  		+ numParam: 0
+  		+ EtiqFuncion: 'EtiqFuncion3'
+* LEXEMA : 'FuncionRetorno'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'cad'
+  		+ numParam: 3
+  		+ TipoParam1: 'cad'
+  		+ TipoParam2: 'ent'
+  		+ TipoParam3: 'log'
+  		+ EtiqFuncion: 'EtiqFuncion4'
+* LEXEMA : 'FuncionSentencia'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'tipo_vacio'
+  		+ numParam: 2
+  		+ TipoParam1: 'ent'
+  		+ TipoParam2: 'log'
+  		+ EtiqFuncion: 'EtiqFuncion5'
+* LEXEMA : 'Funcion'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'tipo_vacio'
+  		+ numParam: 2
+  		+ TipoParam1: 'ent'
+  		+ TipoParam2: 'log'
+  		+ EtiqFuncion: 'EtiqFuncion6'
+* LEXEMA : 'x__'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 67
+* LEXEMA : 'iii'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 68
+* LEXEMA : 'bbb'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 69
+-----------------------------------------
+TABLA fF #2 :
+
+* LEXEMA : 'Ff'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+-----------------------------------------
+TABLA Ff #3 :
+
+* LEXEMA : 'FF'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+* LEXEMA : 'A4A'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 1
+-----------------------------------------
+TABLA FuncionNumero #4 :
+
+* LEXEMA : 'i'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 0
+-----------------------------------------
+TABLA FuncionRetorno #5 :
+
+* LEXEMA : 'otracadena'
+  	Atributos :
+  		+ tipo: 'cad'
+  		+ despl: 2
+* LEXEMA : 'x'
   	Atributos :
   		+ tipo: 'ent'
   		+ despl: 1
-* LEXEMA : 'ff'
+* LEXEMA : 'z'
   	Atributos :
-  		+ tipo: 'func'
-  		+ TipoRetorno: 'log'
-  		+ numParam: 1
-  		+ TipoParam1: 'log'
-  		+ EtiqFuncion: 'EtiqFuncion1'
-* LEXEMA : 'n1'
-  	Atributos :
-  		+ tipo: 'ent'
-  		+ despl: 2
-* LEXEMA : 'ss'
-  	Atributos :
-  		+ tipo: 'ent'
-  		+ despl: 3
+  		+ tipo: 'log'
+  		+ despl: 0
 -----------------------------------------
-TABLA ff #2 :
+TABLA FuncionSentencia #6 :
 
-* LEXEMA : 'ss'
+* LEXEMA : 'b'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+* LEXEMA : 'z'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 0
+-----------------------------------------
+TABLA Funcion #7 :
+
+* LEXEMA : 'x'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+* LEXEMA : 'b'
   	Atributos :
   		+ tipo: 'log'
   		+ despl: 0
