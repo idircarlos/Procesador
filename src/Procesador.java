@@ -55,9 +55,8 @@ public class Procesador {
 				nLinea++;
 			}
 			
-			ParMT par = afd.getPar(estadoActual,car);	//
+			ParMT par = afd.getPar(estadoActual,car);	
 			if(par!=null) { // Estado final o transicion error
-			//System.out.println(estadoActual+ "\t" +car+"\t"+par.toString());
 				acciones = par.getAcciones();
 				estadoActual = par.getEstadoSig();
 			}
@@ -78,8 +77,6 @@ public class Procesador {
 					break;
 					
 				}
-				//System.out.println(estadoActual+ "\t" +(int)car);
-				
 				car=leer();
 				return null;
 			}
@@ -94,11 +91,9 @@ public class Procesador {
 					token = GenToken(pos,"");
 				}
 				else{
-					//System.out.println("variable: " + contador);
 					pos = posTG;
 					if(zonaDecl) { //Zona declaracion activa 
 						 //Mira si existe en una tabla o no
-						//System.out.println("GlobalActiva y zonadecl activa: " + GlobalActiva);
 						if(GlobalActiva){ //Si esta la global activa 
 							existente = TGlobal.containsKey(cadena);
 						}
@@ -130,42 +125,27 @@ public class Procesador {
 						}
 					}
 					else{ //No esta la zona de declaracion activada
-						//System.out.println("GlobalActiva y zonadecl desactivada: " + GlobalActiva);
 						if(GlobalActiva){ // Se busca en la global
-						    //	System.out.println("CADENA: " + cadena);
-							//System.out.println(TGlobal);
 							existente = TGlobal.containsKey(cadena);
-							//System.out.println("TGAT   La variable "+ cadena + " existe en la tabla global -> "+ existente);
 							if(existente){
-								//System.out.println("estamos dentro");
-								
 								if (TGlobal.get(cadena).get("pos") != null && !TGlobal.get(cadena).get("pos").equals("") ){
 									pos = Integer.parseInt(""+TGlobal.get(cadena).get("pos"));
 								}
 								else {
 									pos = null;
 								}
-								//System.out.println("pos" + pos);
 							} 
 						} 
 						else{ //Se busca en local y luego en la global si es que no existia en la local
 							existente = TLocal.containsKey(cadena);
-							//System.out.println("TLocal: " + TLocal);
-							//System.out.println("TLAT   La variable "+ cadena + " existe en la tabla local -> "+ existente);
 							if(!existente){
 								existente = TGlobal.containsKey(cadena);
-								//System.out.println("TLAT   La variable "+ cadena + " existe en la tabla global -> "+ existente);
 								if(existente){
 									pos = (Integer)TGlobal.get(cadena).get("pos"); //Existe en la global
 								}
 							}
 							else{ //Existe en la local (existente = true) para la local
-								//System.out.println(TLocal);
-								//System.out.print("A VER SI ES NULL ");
 								pos = (Integer)TLocal.get(cadena).get("pos"); //Existe en la local
-								//System.out.println("number " + pos);
-								//System.out.println(TGlobal);
-								//System.out.println(TLocal);
 							}
 						}
 						if(!existente){ //No existe el identificador y no estamos en zona de declaracion por lo que es un entero
@@ -185,7 +165,6 @@ public class Procesador {
 							
 						}
 					}
-					//System.out.println("ESTAMOS AQUI   "+pos);
 					token = GenToken(11, pos);
 					contador++;
 				}
@@ -286,69 +265,45 @@ public class Procesador {
 		pilaAtributos.push(new HashMap<String,Object>());
 		pilaAsc.push(estado);
 		while (!hayError){
-			//System.out.println("-------------------ITER " + iter + "--------------------");
-			//System.out.println( "1\t" +pilaAsc);
-			//System.out.println("Esatdo\t" +estado);
-			//System.out.println("Simbolo\t" +simbolo);
 			accion = agt.getAccion(estado, simbolo);
-			//System.out.println("ACCION\t" +accion);
 			if(accion!=null){
 				operacion = accion.charAt(0); // Miramos si es desplazamiento ('d') regla ('r') aceptado ('acc') o error (' ')
 			}
 			else {
-				//System.out.println("No aceptado");
-				//System.out.println("Error");
 				ErrorSintactico(estado, simbolo);
 				hayError = true;
 				break;
 			}
 			if(operacion == 'd'){
 				estado = accion.substring(1,accion.length());
-				//System.out.println("2\t" + pilaAsc);
 				pilaAsc.push(simbolo);
 				Map<String,Object> atributos = new HashMap<String,Object>();
 				if (simbolo.equals("id")){
-					//System.out.println(token);
 					Integer id = (Integer)token.getVal();
-					//System.out.println("NECESITAMOS QUE AQUI NO DE NULL " + id);
-					//System.out.println(GlobalActiva);
 					if (!GlobalActiva){ //Si no esta activa la tabla
 						encontrado = TLocal.containsKey(ListTL.get(id));
 						if (encontrado){
-							//System.out.println("dentro");
 							atributos = TLocal.get(ListTL.get(id));
-							//System.out.println("COSAS");
-							//System.out.println(ListTL);
-							//System.out.println(TLocal);
-							//System.out.println(atributos);
 						}
 						else if(TGlobal.containsKey(ListTG.get(id))){
-							//System.out.println("medio");
 							atributos = TGlobal.get(ListTG.get(id));
 						}
 						else {
-							//System.out.println("fuera");
 							atributos.put("lexema",ListTL.get(id));
 						}
 					}
 					else if (TGlobal.containsKey(ListTG.get(id))){
-						//System.out.println("CHIVATON1");
 						atributos = TGlobal.get(ListTG.get(id));
-						//System.out.println(atributos);
 					}
 					else {
-						//System.out.println("CHIVATON2");
 						atributos.put("lexema", ListTG.get(id));
 					}
 				}
 				else {
-					//System.out.println("CHIVATON3");
 					atributos.put("lexema", simbolo);
 				}
 				pilaAtributos.push(atributos);
-				//System.out.println("3\t" + pilaAsc);
 				pilaAsc.push(estado);
-				//System.out.println("4\t" + pilaAsc);
 				pilaAtributos.push(new HashMap<String,Object>());
 				if (simbolo.equals("function") || simbolo.equals("let")){
 					ASemantico("-2");
@@ -357,18 +312,13 @@ public class Procesador {
 					ASemantico("-1");
 				}
 				token = ALexico();
-				//System.out.println("token\t"+token);
 				simbolo = obtenerLexema(token);
 			}
 			else if (operacion == 'r'){
 				regla = accion.substring(1, accion.length());
 				String[] linea = consecuentes[Integer.parseInt(regla)].split(":");
-				//System.out.println(Arrays.toString(linea));
 				k = Integer.parseInt(linea[1]);
 				antecedente = linea[0];
-				//System.out.println("regla " +regla);
-				//System.out.println("Antecedente "+antecedente);
-				//System.out.println("k " + k);
 				try{
 					FichParse.write(regla+" ");
 				}
@@ -379,25 +329,15 @@ public class Procesador {
 					pilaAsc.pop();
 				}
 				estado = agt.getAccion(pilaAsc.lastElement(), antecedente);
-				//System.out.println("5\t" + pilaAsc);
 				pilaAsc.push(antecedente);
-				//System.out.println("6\t" + pilaAsc);
 				pilaAsc.push(estado);
-				//System.out.println("7\t" + pilaAsc);
 				ASemantico(regla);
 				
 			}
-			else if(operacion == 'a'){
-				//System.out.println("Aceptado");
-				//imprimirPilaSimbolos();
-				//System.out.println();
-				//System.out.println(TGlobal);
-				//System.out.println();
-				//System.out.println(TLocal);
+			else if(operacion == 'a'){ //Aceptado sintácticamente
 				return;
 			}
 			else {
-				//System.out.println("Error");
 				ErrorSintactico(estado, simbolo);
 			}
 		}
@@ -455,12 +395,10 @@ public class Procesador {
 		String id;
 		
 		int ancho;
-		//imprimirPilaSimbolos();
 		switch(Integer.parseInt(regla)){
-			case 0: //NO PUEDE TENER ERRORES 
+			case 0:
 				TGlobal.clear(); //Borrar contenido de Tabla Global
 			break;
-
 		    case 1:
 				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio")){
 					atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
@@ -468,7 +406,6 @@ public class Procesador {
 				else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
 						pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
 								atributos.put("tipo", "tipo_error");
-								//No error
 				}
 				else{
 					atributos.put("tipo", "tipo_ok");
@@ -482,14 +419,13 @@ public class Procesador {
 				else if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
 						pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
 								atributos.put("tipo", "tipo_error");
-								//No error
 				}
 				else{
 					atributos.put("tipo", "tipo_ok");
 				}
 				break;
 			
-			case 3:  //NO PUEDE TENER ERRORES
+			case 3:  
 				atributos.put("tipo", "tipo_vacio");
 				break;
 			
@@ -505,10 +441,8 @@ public class Procesador {
 				map.put("numParam", 0);
 				TLocal.put(id, map);
 				despL = despL + (Integer)pilaAtributos.get(cima-5).get("desp");
-				//System.out.println("CONTENIDO" + pilaAtributos.get(cima-1).get("tipoParam"));
 				ArrayList<String> auxiliar = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (auxiliar.size() == 0){
-					//System.out.println("inicializo a 1");
 					atributos.put("numParam", 1);
 					ArrayList<String> auxiliar1 = new ArrayList<String>();
 					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
@@ -516,7 +450,6 @@ public class Procesador {
 				}
 				else {
 					int numParam = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
-					//System.out.println("NUM PARAM = " + numParam);
 					atributos.put("numParam", numParam);
 					ArrayList<String> auxiliar1 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
@@ -524,7 +457,7 @@ public class Procesador {
 				}
 				break;
 
-			case 5: //NO PUEDE TENER ERRORES
+			case 5: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 			case 6:
@@ -536,8 +469,6 @@ public class Procesador {
 				atributosIDS.put("pos", pilaAtributos.get(cima-5).get("pos"));
 				if(GlobalActiva){
 					atributosIDS.put("desp", despG);
-					//System.out.println("NECESITAMOS QUE NO DE NULL " + id);
-					//imprimirPilaSimbolos();
 					TGlobal.put(id, atributosIDS);
 					despG = despG + ancho;
 				}
@@ -548,7 +479,6 @@ public class Procesador {
 				}
 
 				pilaAtributos.set(cima-5, atributosIDS);
-				//imprimirPilaSimbolos();
 				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio") || 
 					pilaAtributos.get(cima-5).get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
 						atributos.put("tipo", "tipo_ok");
@@ -556,8 +486,6 @@ public class Procesador {
 				else{
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(21, "Se esperaba un tipo de dato '" + pilaAtributos.get(cima-5).get("tipo") + "' pero se encontró '" + pilaAtributos.get(cima-3).get("tipo") + "'\n");
-					
-					//ERROR Tipos distintos a ambos lados de la asignacion
 				}
 				
 				break;
@@ -570,15 +498,11 @@ public class Procesador {
 					if(!pilaAtributos.get(cima-5).get("tipo").equals("log")){
 						if(pilaAtributos.get(cima-5).get("tipo").equals("tipo_error"))
 						GenerarErrores(22, "Se esperaba una expresión lógica pero se encontró una expresión errónea \n");
-						//22
-						//LA CONDICION NO ERA LOGICA
 						else{
 							GenerarErrores(22, "Se esperaba una expresión lógica pero se encontró "+pilaAtributos.get(cima-5).get("tipo")+"\n");
 						}
 					} 
 					if(pilaAtributos.get(cima-1).get("tipo").equals("tipo_vacio")){
-						//23
-						//EL CUERPO DE UN IF NO PUEDE SER VACIO	
 						//GenerarErrores(23, "El cuerpo de un if no puede ser vacio\n"); //no se puede dar este caso nunca
 					}
 					else if(!pilaAtributos.get(cima-1).get("tipo").equals("tipo_ok")){
@@ -587,7 +511,7 @@ public class Procesador {
 				}
 				
 				break;
-			case 8: //NO PUEDE TENER ERRORES
+			case 8:
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
 				break;
 			case 9:
@@ -599,7 +523,6 @@ public class Procesador {
 					}
 				else{
 					atributos.put("tipo", "tipo_error");
-					//HACER ERRORES CON ESPECIFCIDAD
 					if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
 						//GenerarErrores(24,"El cuerpo del bucle for es incorrecto\n");
 					}
@@ -615,11 +538,11 @@ public class Procesador {
 				}
 				
 				break;
-			case 10: //NO PUEDE TENER ERRORES
+			case 10:
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
 				break;
 
-			case 11: //NO PUEDE TENER ERRORES
+			case 11: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 			case 12:
@@ -652,24 +575,16 @@ public class Procesador {
 					}
 				}
 				pilaAtributos.set(cima-9, atributosIDS);
-				//System.out.println("imprimir atributos");
-				//imprimirPilaSimbolos();
-				System.out.println(atributosIDS.get("tipo"));
-				System.out.println(id);
 				if(atributosIDS.get("tipo").equals("func")){
-					//String nombreFuncion = (String) pilaAtributos.get(cima-9).get("lexema");
 					if(pilaAtributos.get(cima-9).get("tipo").equals("func")){
 						Integer numeroParams = (Integer)atributosIDS.get("numParam");
 						ArrayList<String> tipoParametros = (ArrayList<String>) atributosIDS.get("tipoParam");
 						ArrayList<String> tipoParametrosL = (ArrayList<String>) pilaAtributos.get(cima-5).get("tipoParam");
-						//System.out.println(TGlobal);
 						if(pilaAtributos.get(cima-9).get("numParam").equals(numeroParams) &&
 								tipoParametrosL.equals(tipoParametros)){
-								//	System.out.println("NO ERROR");
 							atributos.put("tipo", "tipo_ok");
 						}
 						else if(tipoParametros.size()==0 && tipoParametrosL.size()!=0){
-							//System.out.println("PRIMER ERROR");
 							atributos.put("tipo", "tipo_error");
 							GenerarErrores(30, id);
 							
@@ -682,29 +597,19 @@ public class Procesador {
 							
 						}
 						else{
-						//	System.out.println("SEGUNDO ERROR");
 							atributos.put("tipo", "tipo_error");
 							GenerarErrores(31, "El número de parametros de la funcion " + id + " es incorrecto, se esperaban " + pilaAtributos.get(cima-9).get("numParam") + "\n");
-							
-							//ERROR 6 La llamada a funcion es incorrecta (parametros de llamada incorrectos)
 						}
 					}
 					else{
-					//	System.out.println("TERCER ERROR");
 						atributos.put("tipo", "tipo_error");
 						GenerarErrores(50, "La llamada a la función " + id + " es incorrecta\n");
-						
-						//ERROR 6 La llamada a funcion es incorrecta
 					}
 					
 				}
 				else if (!pilaAtributos.get(cima-9).get("tipo").equals("func")){
-					//System.out.println("CUARTO ERROR");
-					imprimirPilaSimbolos();
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(51, "La función " + id + " no esta declarada\n");
-					
-					//La funcion no está declarada
 				}
 				
 				break;
@@ -747,7 +652,6 @@ public class Procesador {
 				}
 				else {
 					atributos.put("tipo", "tipo_error");
-					//gestor de errores
 						GenerarErrores(28, "Se esperaba un tipo de dato entero  pero se encontró '" + atributosIDS.get("tipo") + "'\n");
 						
 				}
@@ -756,14 +660,10 @@ public class Procesador {
 
 			case 14:
 				id = (String) pilaAtributos.get(cima-7).get("lexema");
-				//System.out.println(TLocal.containsKey(id));
-				//System.out.println(GlobalActiva);
-				//System.out.println(TGlobal.containsKey(id));
 				if(!GlobalActiva){
 					
 					if(TLocal.containsKey(id)){
 						atributosIDS = TLocal.get(id);
-					//	System.out.println(atributosIDS);
 					}
 					else if(TGlobal.containsKey(id)){
 						atributosIDS = TGlobal.get(id);
@@ -789,8 +689,6 @@ public class Procesador {
 						TGlobal.put(id, atributosIDS);
 						despG++;
 					}
-					System.out.println(id);
-					System.out.println("atr: " + atributosIDS);
 				} 
 				pilaAtributos.set(cima-7, atributosIDS);
 				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
@@ -799,13 +697,7 @@ public class Procesador {
 				else {
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(29, "Se esperaba un tipo de dato '" +atributosIDS.get("tipo") + "' pero se encontró un tipo erróneo\n");
-					
-					//gestor de errores
 				}
-				//atributos.put("tipo", atributosIDS.get("tipo"));
-				//System.out.println(pilaAtributos);
-				//System.out.println(atributosIDS);
-				
 				break;
 				
 			case 15:
@@ -874,7 +766,6 @@ public class Procesador {
 
 			case 17:
 				if(!GlobalActiva){
-				//	System.out.println("final " + funcActual);
 					String tipoRet = (String) TGlobal.get(funcActual).get("tipoRet");
 					if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
 						atributos.put("tipo", "tipo_error");
@@ -894,31 +785,26 @@ public class Procesador {
 					else{
 						atributos.put("tipo", "tipo_error");
 						atributos.put("tipoRet", "tipo_error");
-					//	System.out.println(TGlobal.get(funcActual));
 						if(tipoRet.equals("tipo_vacio")){
-						//gestor de errores
 							GenerarErrores(34,"La función " + funcActual + " no devuelve nada, pero se encontró un tipo '" + pilaAtributos.get(cima-3).get("tipo") +"'\n");
 						}
 						else {
 							GenerarErrores(35, "La función " + funcActual + " debe devolver '" +tipoRet +  "' pero se encontró '" + pilaAtributos.get(cima-3).get("tipo") + "'\n");
 						}
-						//Hacer gestor de errores enviando funActual y tipoRet
 					}
 				}else{
 					atributos.put("tipo", "tipo_ok");
 					atributos.put("tipoRet", pilaAtributos.get(cima-3).get("tipo"));
 					
 				}
-				
 				break;
 				
-			case 18://NO PUEDE TENER ERRORES
+			case 18:
 				atributos.put("tipo", "tipo_vacio");
 				break;
 
 			case 19:
 				id = (String) pilaAtributos.get(cima-5).get("lexema");
-				
 				if(!GlobalActiva){
 					if(TLocal.containsKey(id)){
 						atributosIDS = TLocal.get(id);
@@ -948,17 +834,13 @@ public class Procesador {
 						despG++;
 					}
 				}
-				//atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
-			//	System.out.println("atributos");
-			//	System.out.println(atributosIDS);
 				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
 					atributos.put("tipo", "tipo_ok");
 				}
 				else {
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(28, "Se esperaba un tipo de dato entero  pero se encontró '" + atributosIDS.get("tipo") + "'\n");
-					//gestor de errores
 				}
 				
 				break;
@@ -994,98 +876,77 @@ public class Procesador {
 						despG++;
 					}
 				} 
-				//atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-5, atributosIDS);
-			//	System.out.println("atributos");
-			//	System.out.println(atributosIDS);
 				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
 					atributos.put("tipo", "tipo_ok");
 				}
 				else {
 					atributos.put("tipo", "tipo_error");
-				GenerarErrores(29, "Se esperaba un tipo de dato '" +atributosIDS.get("tipo") + "' pero se encontró un tipo erróneo\n");
-					//gestor de errores
+					GenerarErrores(29, "Se esperaba un tipo de dato '" +atributosIDS.get("tipo") + "' pero se encontró un tipo erróneo\n");
 				}
 				
 				break;
-			case 21: //NO PUEDE TENER ERRORES
+			case 21: 
 				atributos.put("tipo", (String) pilaAtributos.get(cima-1).get("tipo"));
-			//	if (!pilaAtributos.get(cima-1).get("tipo").equals("tipo_ok")){
-				//	GenerarErrores(41, "Error en el cuerpo de la funcion " + funcActual + "\n");
-			//	}
-				//BUFFER
 				bufferTS.add(new ParFunc(funcActual, new HashMap<String,Map<String,Object>>(TLocal)));
-				System.out.println("case 21 " + TLocal);
 				TLocal.clear();
-				//System.out.println("cambio a null");
 				funcActual = null;
-				//System.out.println("global activa true");
 				GlobalActiva = true;
 				break;
 
-			case 22: //NO PUEDE TENER ERRORES
-				//System.out.println("global activa false");
+			case 22: 
 				GlobalActiva = false;
-				//System.out.println("antes " + funcActual);
 				funcActual = (String) pilaAtributos.get(cima-3).get("lexema");
-				//System.out.println("despues " + funcActual);
 				despL = 0;
 				Map<String,Object> atribAux = TGlobal.get((String) pilaAtributos.get(cima-3).get("lexema"));
-			//	System.out.println();
-				//imprimirPilaSimbolos();
-				//atribAux.put("lexema", funcActual);
 				atribAux.put("tipo", "func");
 				atribAux.put("tipoParam", new ArrayList<>());
 				atribAux.put("tipoRet", (String) pilaAtributos.get(cima-1).get("tipo"));
 				atribAux.put("etiq", generarEtiqueta());
 				TGlobal.put(funcActual, atribAux);
-				//atribAux.put("tipoRet",(String) pilaAtributos.get(cima-1).get("tipo")); 	// PROBABLEMENTE QUITAR NO CAMBIA
-				//atribAux.put("info", pilaAtributos.get(cima-3).get("lexema"));				// PROBABLEMENTE QUITAR
 				break;
 
-			case 23: //NO PUEDE TENER ERRORES
-				//atributos.put("lexema", funcActual);
+			case 23: 
 				Map<String,Object> aux = TGlobal.get(funcActual);
 				aux.put("numParam", pilaAtributos.get(cima-3).get("numParam"));
 				aux.put("tipoParam", pilaAtributos.get(cima-3).get("tipoParam"));
 				TGlobal.put(funcActual, aux);
-			//	System.out.println(pilaAtributos.get(cima-3));
 				atributos.put("numParam", (Integer)pilaAtributos.get(cima-3).get("numParam"));
 				atributos.put("tipoParam", (ArrayList<String>) pilaAtributos.get(cima-3).get("tipoParam"));
 				zonaDecl = false;
 				break;
 			
-			case 24: //NO PUEDE TENER ERRORES
+			case 24: 
 				atributos.put("tipo", (String) pilaAtributos.get(cima-3).get("tipo"));
 				atributos.put("tipoRet", (String) pilaAtributos.get(cima-3).get("tipoRet"));
 				break;
 
-			case 25: //NO PUEDE TENER ERRORES
+			case 25: 
                 if(pilaAtributos.get(cima-3).get("tipo").equals("tipo_error") ||
 					pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
 						atributos.put("tipo", "tipo_error");
 		
 				} 
-					else {
-						atributos.put("tipo",pilaAtributos.get(cima-3).get("tipo")); 
-						atributos.put("tipoRet",pilaAtributos.get(cima-3).get("tipoRet"));
-					}
-					GlobalActiva = true;
-					break;
+				else {
+					atributos.put("tipo",pilaAtributos.get(cima-3).get("tipo")); 
+					atributos.put("tipoRet",pilaAtributos.get(cima-3).get("tipoRet"));
+				}
+				GlobalActiva = true;
+				break;
 					
-			case 26: //NO PUEDE TENER ERRORES
+			case 26: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 
-			case 27: //NO PUEDE TENER ERRORES
+			case 27: 
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
 				break;
 
-			case 28: //NO PUEDE TENER ERRORES
+			case 28: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 			
-			case 29: //NO PUEDE TENER ERRORES
+			case 29:
 				Map<String,Object> map1 = new HashMap<>();
 				id = (String) pilaAtributos.get(cima-3).get("lexema");
 				String tipoVariable1 = (String) pilaAtributos.get(cima-5).get("tipo");
@@ -1100,7 +961,6 @@ public class Procesador {
 				ArrayList<String> auxiliar2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (auxiliar2.size() == 0){
 					atributos.put("numParam", 1);
-					//System.out.println("inicializo a 1 aqui");
 					ArrayList<String> auxiliar1 = new ArrayList<String>();
 					auxiliar1.add((String) pilaAtributos.get(cima-5).get("tipo"));
 					atributos.put("tipoParam", auxiliar1);
@@ -1114,11 +974,11 @@ public class Procesador {
 				}
 				break;
 				
-			case 30: //NO PUEDE TENER ERRORES
+			case 30:
 				atributos.put("tipoParam", new ArrayList<String>());
 				break;
 
-			case 31: //NO PUEDE TENER ERRORES
+			case 31:
 				ArrayList<String> params1 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (params1.size() == 0){
 					ArrayList<String> auxParams = new ArrayList<String>();
@@ -1128,7 +988,6 @@ public class Procesador {
 				}
 				else {
 					int numParametros = Integer.valueOf(""+pilaAtributos.get(cima-1).get("numParam")) + 1;
-					//System.out.println("NUM PARAM = " + numParametros);
 					atributos.put("numParam", numParametros);
 					ArrayList<String> parametros = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 					parametros.add((String) pilaAtributos.get(cima-3).get("tipo"));
@@ -1136,11 +995,11 @@ public class Procesador {
 				}
 				break;
 
-			case 32: //NO PUEDE TENER ERRORES
+			case 32: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 			
-			case 33: //NO PUEDE TENER ERRORES
+			case 33: 
 				ArrayList<String> params2 = (ArrayList<String>) pilaAtributos.get(cima-1).get("tipoParam");
 				if (params2.size() == 0){
 					ArrayList<String> auxParams = new ArrayList<String>();
@@ -1156,27 +1015,27 @@ public class Procesador {
 					atributos.put("tipoParam", parametros);
 				}
 				break;
-			case 34: //NO PUEDE TENER ERRORES
+			case 34: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
-			case 35: //NO PUEDE TENER ERRORES
+			case 35: 
 				atributos.put("tipo", "ent");
 				atributos.put("desp", 1);
 				break;
-			case 36: //NO PUEDE TENER ERRORES
+			case 36: 
 			   	atributos.put("tipo", "cad");
 				atributos.put("desp", 64);
 				break;
-			case 37: //NO PUEDE TENER ERRORES
+			case 37: 
 				atributos.put("tipo", "log");
 				atributos.put("desp", 1);
 				break;
  
-			case 38: //NO PUEDE TENER ERRORES
+			case 38: 
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
 				break;
 
-			case 39: //NO PUEDE TENER ERRORES
+			case 39: 
 				atributos.put("tipo", "tipo_vacio");
 				break;
 
@@ -1187,38 +1046,29 @@ public class Procesador {
 				}else{
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(44, "Los dos tipos deben ser enteros pero son: '"+ pilaAtributos.get(cima-1).get("tipo")+ "' y '" +pilaAtributos.get(cima-5).get("tipo") +"'\n");
-					//gestor de errores 
 				}
 				
 				break;
 
-			case 41: //NO PUEDE TENER ERRORES
-				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
-				//System.out.println("regla41");
-				//imprimirPilaSimbolos();
-				//System.out.println("regla41");				
+			case 41: 
+				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));				
 				break;
 
 			case 42:
-			//	System.out.println(TGlobal);
 			 	if(pilaAtributos.get(cima-1).get("tipo").equals("ent") && 
 				pilaAtributos.get(cima-5).get("tipo").equals("ent")){
 					atributos.put("tipo", "ent");
 				} else{
 					atributos.put("tipo", "tipo_error");
 						GenerarErrores(44, "Los dos tipos deben ser enteros pero son: '"+ pilaAtributos.get(cima-1).get("tipo")+ "' y '" +pilaAtributos.get(cima-5).get("tipo") +"'\n");
-					//gestor de errores 
 				}
-				
 				break;
 				
-			case 43: //NO PUEDE TENER ERRORES
+			case 43: 
 				atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
 				break;
 
 			case 44:
-				//System.out.println("pila simb");
-			//	imprimirPilaSimbolos();
 				if(pilaAtributos.get(cima-1).get("tipo").equals("log")){
 					atributos.put("tipo", "log");
 				}else{
@@ -1229,29 +1079,18 @@ public class Procesador {
 					else{
 					GenerarErrores(45, "El operador ! solo se puede usar con expresiones de tipo lógico pero se encontró una expresión de tipo '" + pilaAtributos.get(cima-1).get("tipo") + "'\n");
 					}
-					//gestor de errores
-				}
-				
+				}	
 				break;
 
-			case 45: //NO PUEDE TENER ERRORES
+			case 45: 
 				atributos.put("tipo",pilaAtributos.get(cima-3).get("tipo"));
 				break;
 			
-			case 46: //NO PUEDE TENER ERRORES
-			//	System.out.println("*****");
-			//	imprimirPilaSimbolos();
-			//	System.out.println("*****");
+			case 46: 
 				id = (String) pilaAtributos.get(cima-1).get("lexema");
-				//System.out.println("AQIO");
-				//imprimirPilaSimbolos();
-			//	System.out.println(id+ " SI DA NULL ESTA MAL");
-			//	System.out.println(TGlobal);
-			//	System.out.println("local " + TLocal);
 				boolean encontrado;
 				if (!GlobalActiva){	// si no estamos en la global
 					encontrado = TLocal.containsKey(id);
-					//System.out.println(encontrado+" PRUEBA " + id);
 					if(encontrado){
 						atributosIDS = TLocal.get(id);
 					}else{
@@ -1261,7 +1100,6 @@ public class Procesador {
 						}
 						else{
 							atributosIDS.put("lexema", id);
-				//			System.out.println("LO PONGO A ENTERO");
 							atributosIDS.put("tipo", "ent");
 							atributosIDS.put("desp", despG);
 							atributosIDS.put("tipoParam", new ArrayList<String>());
@@ -1274,12 +1112,10 @@ public class Procesador {
 				else {
 					encontrado = TGlobal.containsKey(id);
 					if(encontrado){
-					//	System.out.println("ESTAMOS AQUI TIO: " + TGlobal);
 						atributosIDS=TGlobal.get(id);
 					}
 					else{
 						atributosIDS.put("lexema", id);
-					//	System.out.println("LO PONGO A ENTERO");
 						atributosIDS.put("tipo", "ent");
 						atributosIDS.put("desp", despG);
 						atributosIDS.put("tipoParam", new ArrayList<String>());
@@ -1290,17 +1126,14 @@ public class Procesador {
 					
 				}
 				atributos = new HashMap<>(atributosIDS);
-				//System.out.println("imprimo pila");
-				//imprimirPilaSimbolos();
 				pilaAtributos.set(cima-1, atributosIDS);
-				//imprimirPilaSimbolos();
 				break;
 			
 			case 47:
 				id = (String) pilaAtributos.get(cima-7).get("lexema");
 				Integer numParametros = (Integer)pilaAtributos.get(cima-3).get("numParam");
 				ArrayList<String> tipoParametros = (ArrayList<String>)pilaAtributos.get(cima-3).get("tipoParam");
-				System.out.println(id);
+				ArrayList<String> tipoParametrosID = (ArrayList<String>)pilaAtributos.get(cima-7).get("tipoParam");
 				if (GlobalActiva){
 					if (TGlobal.get(id).get("numParam").equals(numParametros) && 
 						TGlobal.get(id).get("tipoParam").equals(tipoParametros) ){
@@ -1309,15 +1142,29 @@ public class Procesador {
 							atributos.put("tipoParam", tipoParametros);
 					}
 					else {
+						if (tipoParametrosID.size()==0 && tipoParametros.size()!=0){
+							atributos.put("tipo", "tipo_error");
+							GenerarErrores(30, id);
+						}
+						else if(!TGlobal.get(id).get("numParam").equals(numParametros)){
+							GenerarErrores(31, "El número de parametros de la funcion " + id + " es incorrecto, se esperaban " + pilaAtributos.get(cima-7).get("numParam") + "\n");
+						}
+						else if(TGlobal.get(id).get("numParam").equals(numParametros) && !tipoParametros.equals(tipoParametrosID)){
+							Collections.reverse(tipoParametrosID);
+							Collections.reverse(tipoParametros);
+							atributos.put("tipo", "tipo_error");
+							GenerarErrores(36, "Los parámetros que se esperaban para la función " + id + " son: " + tipoParametrosID + " pero se encontraron: " + tipoParametros + "\n");
+
+						}
+
+						else{
 						atributos.put("tipo", "tipo_error");
 						GenerarErrores(50, "La llamada a la función " + id + " es incorrecta\n");
+						}
 						
 					}
 				}
 				else {
-				//	System.out.println("LA GLOBAL ES  " + id);
-				//	System.out.println(numParametros + " , " + tipoParametros);
-				//	System.out.println(TGlobal);
 					if (TGlobal.get(id).get("numParam").equals(numParametros) && 
 						TGlobal.get(id).get("tipoParam").equals(tipoParametros) ){
 							atributos.put("tipo", pilaAtributos.get(cima-7).get("tipoRet"));
@@ -1325,19 +1172,35 @@ public class Procesador {
 							atributos.put("tipoParam", tipoParametros);
 					}
 					else {
+						if (tipoParametrosID.size()==0  && tipoParametros.size()!=0){
+							atributos.put("tipo", "tipo_error");
+							GenerarErrores(30, id);
+						}
+						else if(!TGlobal.get(id).get("numParam").equals(numParametros)){
+							GenerarErrores(31, "El número de parametros de la funcion " + id + " es incorrecto, se esperaban " + pilaAtributos.get(cima-7).get("numParam") + "\n");
+						}
+						else if(TGlobal.get(id).get("numParam").equals(numParametros) && !tipoParametros.equals(tipoParametrosID)){
+							Collections.reverse(tipoParametrosID);
+							Collections.reverse(tipoParametros);
+							atributos.put("tipo", "tipo_error");
+							GenerarErrores(36, "Los parámetros que se esperaban para la función " + id + " son: " + tipoParametrosID + " pero se encontraron: " + tipoParametros + "\n");
+
+						}
+
+						else{
 						atributos.put("tipo", "tipo_error");
 						GenerarErrores(50, "La llamada a la función " + id + " es incorrecta\n");
+						}
 						
 					}
 				}
-				
 				break;
 
-			case 48: //NO PUEDE TENER ERRORES
+			case 48: 
 				atributos.put("tipo","ent");
 				break;
 				
-			case 49: //NO PUEDE TENER ERRORES
+			case 49: 
 				atributos.put("tipo","cad");
 				break;
 		}
@@ -1345,12 +1208,8 @@ public class Procesador {
 		for (int i = 0; i < 2*k; i++){
 			pilaAtributos.pop();
 		}
-
 		pilaAtributos.push(atributos);
-		pilaAtributos.push(new HashMap<String,Object>());
-		
-
-		
+		pilaAtributos.push(new HashMap<String,Object>());	
 	}
 	private static String generarEtiqueta() {
 		nEtiqueta++;
@@ -1366,7 +1225,6 @@ public class Procesador {
 			System.out.print("NUMPARAM = "+ pilaAtributos.get(i).get("numParam")+"\t");
 			System.out.print("TIPOPARAM = "+ pilaAtributos.get(i).get("tipoParam")+"\t");
 			System.out.println("TIPORET = "+ pilaAtributos.get(i).get("tipoRet")+"\t");
-			//System.out.println("INFO = "+ pilaAtributos.get(i).get("info")+"\t");
 			j = j + 2;
 		}
 	}
@@ -1697,15 +1555,11 @@ public class Procesador {
 	private static void imprimirTablaSimbolos() {
 		try {
 			Set<String> set1 = TGlobal.keySet();
-			System.out.println(TGlobal);
 			ArrayList<Pair<String,Integer>> pares = new ArrayList<>();
 			for (String c : set1){
 				pares.add(new Pair<String,Integer>((String)c,(Integer)TGlobal.get(c).get("pos")));
 			}
-			System.out.println(pares);
-			//pares.remove(0);
 			Collections.sort(pares);
-			//System.out.println(pares);
 			FichTablaSimb.write("TABLA DE SIMBOLOS GLOBAL #1 :\n");
 			FichTablaSimb.write("\n");
 			for (Pair<String,Integer> par : pares){
@@ -1739,7 +1593,6 @@ public class Procesador {
 				FichTablaSimb.write("TABLA " + bufferTS.get(i).getId() +" #"+(i+2)+" :\n");
 				FichTablaSimb.write("\n");
 				Collections.sort(pares);
-				//System.out.println(pares);
 				
 				for (Pair<String,Integer> par : pares){
 					FichTablaSimb.write("* LEXEMA : '" + par.getLeft() + "'\n");
@@ -1748,7 +1601,6 @@ public class Procesador {
 					FichTablaSimb.write("  \t\t+ despl: " + bufferTS.get(i).getTablaSimbolos().get(par.getLeft()).get("desp") + "\n");
 				}
 				FichTablaSimb.write("-----------------------------------------\n");
-				//FichTablaSimb.write("\n");
 			}
 
 		} catch (Exception e) {
@@ -1763,7 +1615,6 @@ public class Procesador {
 		afd = new DeterministFiniteAutomate();
 		agt = new ActionGotoTable();
 		rellenarConsecuentes();
-		//agt.printTable();
 		try {
 			fr = new FileReader("./data/inputSemantico.txt");
 			bf = new BufferedReader(fr);
@@ -1781,8 +1632,6 @@ public class Procesador {
 			e.printStackTrace();
 		}
 		ASintactico();
-		//imprimirPilaSimbolos();
-		//System.out.println(TGlobal);
 		if (!hayError && pilaAtributos.get(pilaAtributos.size()-2).get("tipo").equals("tipo_ok")){
 			System.out.println("Programa sin erores");
 			imprimirTablaSimbolos();
@@ -1801,10 +1650,5 @@ public class Procesador {
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
-	
-	
-		
-
-
 	}
 }
