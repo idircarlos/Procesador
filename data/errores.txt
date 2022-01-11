@@ -1,0 +1,1 @@
+Error semántico (21): Linea 1 Se esperaba un tipo de dato 'ent' pero se encontró 'cad'

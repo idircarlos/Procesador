@@ -1,6 +1,7 @@
 let int   a   ;
 let int    b  ;
 let int number;
+let boolean log;
 print ( 'Introduce el primer operando' );
 input (a);
 print ('Introduce el segundo operando');input(b);
@@ -9,6 +10,8 @@ function operacion
 {
 	let int number;
 	number = 88 - num1_-num2_;
+    let boolean bool = number < 10;
+    log = !bool;
 	return number;
 }
 number = operacion (a, b);

@@ -54,8 +54,6 @@ public class Procesador {
 			if(car == '\n') {
 				nLinea++;
 			}
-			System.out.println("FUNCIÓN");
-			System.out.println(car);
 			
 			ParMT par = afd.getPar(estadoActual,car);	//
 			if(par!=null) { // Estado final o transicion error
@@ -96,11 +94,11 @@ public class Procesador {
 					token = GenToken(pos,"");
 				}
 				else{
-					System.out.println("variable: " + contador);
+					//System.out.println("variable: " + contador);
 					pos = posTG;
 					if(zonaDecl) { //Zona declaracion activa 
 						 //Mira si existe en una tabla o no
-						System.out.println("GlobalActiva y zonadecl activa: " + GlobalActiva);
+						//System.out.println("GlobalActiva y zonadecl activa: " + GlobalActiva);
 						if(GlobalActiva){ //Si esta la global activa 
 							existente = TGlobal.containsKey(cadena);
 						}
@@ -132,7 +130,7 @@ public class Procesador {
 						}
 					}
 					else{ //No esta la zona de declaracion activada
-						System.out.println("GlobalActiva y zonadecl desactivada: " + GlobalActiva);
+						//System.out.println("GlobalActiva y zonadecl desactivada: " + GlobalActiva);
 						if(GlobalActiva){ // Se busca en la global
 						    //	System.out.println("CADENA: " + cadena);
 							//System.out.println(TGlobal);
@@ -152,7 +150,7 @@ public class Procesador {
 						} 
 						else{ //Se busca en local y luego en la global si es que no existia en la local
 							existente = TLocal.containsKey(cadena);
-							System.out.println("TLocal: " + TLocal);
+							//System.out.println("TLocal: " + TLocal);
 							//System.out.println("TLAT   La variable "+ cadena + " existe en la tabla local -> "+ existente);
 							if(!existente){
 								existente = TGlobal.containsKey(cadena);
@@ -293,7 +291,7 @@ public class Procesador {
 			//System.out.println("Esatdo\t" +estado);
 			//System.out.println("Simbolo\t" +simbolo);
 			accion = agt.getAccion(estado, simbolo);
-			System.out.println("ACCION\t" +accion);
+			//System.out.println("ACCION\t" +accion);
 			if(accion!=null){
 				operacion = accion.charAt(0); // Miramos si es desplazamiento ('d') regla ('r') aceptado ('acc') o error (' ')
 			}
@@ -581,10 +579,10 @@ public class Procesador {
 					if(pilaAtributos.get(cima-1).get("tipo").equals("tipo_vacio")){
 						//23
 						//EL CUERPO DE UN IF NO PUEDE SER VACIO	
-						GenerarErrores(23, "El cuerpo de un if no puede ser vacio\n");
+						//GenerarErrores(23, "El cuerpo de un if no puede ser vacio\n"); //no se puede dar este caso nunca
 					}
 					else if(!pilaAtributos.get(cima-1).get("tipo").equals("tipo_ok")){
-						GenerarErrores(40, "El cuerpo del if es incorrecto\n");
+						//GenerarErrores(40, "El cuerpo del if es incorrecto\n");
 					}
 				}
 				
@@ -603,7 +601,7 @@ public class Procesador {
 					atributos.put("tipo", "tipo_error");
 					//HACER ERRORES CON ESPECIFCIDAD
 					if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
-						GenerarErrores(24,"El cuerpo del bucle for es incorrecto\n");
+						//GenerarErrores(24,"El cuerpo del bucle for es incorrecto\n");
 					}
 					if (pilaAtributos.get(cima-9).get("tipo").equals("tipo_error")){
 						GenerarErrores(25,"Fallo en el tercer campo del bucle for: Se esperaba una asigancion correcta\n");
@@ -656,6 +654,8 @@ public class Procesador {
 				pilaAtributos.set(cima-9, atributosIDS);
 				//System.out.println("imprimir atributos");
 				//imprimirPilaSimbolos();
+				System.out.println(atributosIDS.get("tipo"));
+				System.out.println(id);
 				if(atributosIDS.get("tipo").equals("func")){
 					//String nombreFuncion = (String) pilaAtributos.get(cima-9).get("lexema");
 					if(pilaAtributos.get(cima-9).get("tipo").equals("func")){
@@ -1019,12 +1019,12 @@ public class Procesador {
 				TLocal.clear();
 				//System.out.println("cambio a null");
 				funcActual = null;
-				System.out.println("global activa true");
+				//System.out.println("global activa true");
 				GlobalActiva = true;
 				break;
 
 			case 22: //NO PUEDE TENER ERRORES
-				System.out.println("global activa false");
+				//System.out.println("global activa false");
 				GlobalActiva = false;
 				//System.out.println("antes " + funcActual);
 				funcActual = (String) pilaAtributos.get(cima-3).get("lexema");

@@ -1,6 +1,6 @@
-// PRUEBA PARA PROBAR QUE PRIMERO SE MIRA EN LA TS LOCAL ANTES QUE EN LA GLOBAL (variable n)
-// RECURSIVIDAD
-// FUNCIÓN LLAMA A FUNCIÓN
+// prueba para probar que primero se mira en la ts local antes que en la global (variable n)
+// recursividad
+// función llama a función
 
 let int n;
 print('introduzca el numero para hacer la resta factorial); 
