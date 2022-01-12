@@ -33,7 +33,6 @@ public class Procesador {
 	private static ArrayList<ParFunc> bufferTS = new ArrayList<ParFunc>();
 	private static String funcActual = null;
 	private static boolean hayError = false;
-	private static int contador = 0;
 	
 	public static Token ALexico() {
 		int estadoActual=0; //Estado actual del automata
@@ -166,7 +165,6 @@ public class Procesador {
 						}
 					}
 					token = GenToken(11, pos);
-					contador++;
 				}
 				break;
 					
@@ -398,7 +396,7 @@ public class Procesador {
 		switch(Integer.parseInt(regla)){
 			case 0:
 				TGlobal.clear(); //Borrar contenido de Tabla Global
-			break;
+				break;
 		    case 1:
 				if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_vacio")){
 					atributos.put("tipo",pilaAtributos.get(cima-1).get("tipo"));
@@ -485,7 +483,12 @@ public class Procesador {
 				}
 				else{
 					atributos.put("tipo", "tipo_error");
-					GenerarErrores(21, "Se esperaba un tipo de dato '" + pilaAtributos.get(cima-5).get("tipo") + "' pero se encontró '" + pilaAtributos.get(cima-3).get("tipo") + "'\n");
+					if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
+						GenerarErrores(21, "Se esperaba un tipo de dato '" + pilaAtributos.get(cima-5).get("tipo") + "' pero se encontró una expresion incorrecta\n");
+					}
+					else {
+						GenerarErrores(21, "Se esperaba un tipo de dato '" + pilaAtributos.get(cima-5).get("tipo") + "' pero se encontró '" + pilaAtributos.get(cima-3).get("tipo") + "'\n");
+					}
 				}
 				
 				break;
@@ -497,16 +500,10 @@ public class Procesador {
 					atributos.put("tipo", "tipo_error");
 					if(!pilaAtributos.get(cima-5).get("tipo").equals("log")){
 						if(pilaAtributos.get(cima-5).get("tipo").equals("tipo_error"))
-						GenerarErrores(22, "Se esperaba una expresión lógica pero se encontró una expresión errónea \n");
+						GenerarErrores(22, "La sentencia if esperaba una expresión lógica pero encontró una expresión errónea\n");
 						else{
-							GenerarErrores(22, "Se esperaba una expresión lógica pero se encontró "+pilaAtributos.get(cima-5).get("tipo")+"\n");
+							GenerarErrores(22, "La sentencia if esperaba una expresión lógica pero encontró '"+pilaAtributos.get(cima-5).get("tipo")+"'\n");
 						}
-					} 
-					if(pilaAtributos.get(cima-1).get("tipo").equals("tipo_vacio")){
-						//GenerarErrores(23, "El cuerpo de un if no puede ser vacio\n"); //no se puede dar este caso nunca
-					}
-					else if(!pilaAtributos.get(cima-1).get("tipo").equals("tipo_ok")){
-						//GenerarErrores(40, "El cuerpo del if es incorrecto\n");
 					}
 				}
 				
@@ -527,13 +524,13 @@ public class Procesador {
 						//GenerarErrores(24,"El cuerpo del bucle for es incorrecto\n");
 					}
 					if (pilaAtributos.get(cima-9).get("tipo").equals("tipo_error")){
-						GenerarErrores(25,"Fallo en el tercer campo del bucle for: Se esperaba una asigancion correcta\n");
+						GenerarErrores(25,"Fallo en el tercer campo del bucle for: Se esperaba una asiganción correcta\n");
 					}
 					if (!pilaAtributos.get(cima-13).get("tipo").equals("log")){
-						GenerarErrores(26,"Fallo en el segundo campo del bucle for: Se esperaba tipo logico\n");
+						GenerarErrores(26,"Fallo en el segundo campo del bucle for: Se esperaba una expresión lógica\n");
 					}
 					if (!pilaAtributos.get(cima-17).get("tipo").equals("tipo_ok")){
-						GenerarErrores(27,"Fallo en el primer campo del bucle for: Se esperaba una asigancion correcta\n");
+						GenerarErrores(27,"Fallo en el primer campo del bucle for: Se esperaba una asiganción correcta\n");
 					}
 				}
 				
@@ -647,13 +644,20 @@ public class Procesador {
 				}
 				atributos = new HashMap<>(atributosIDS);
 				pilaAtributos.set(cima-7, atributosIDS);
-				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
+				if (atributosIDS.get("tipo").equals("ent") && atributosIDS.get("tipo").equals(pilaAtributos.get(cima-3).get("tipo"))){
 					atributos.put("tipo", "tipo_ok");
 				}
 				else {
 					atributos.put("tipo", "tipo_error");
-						GenerarErrores(28, "Se esperaba un tipo de dato entero  pero se encontró '" + atributosIDS.get("tipo") + "'\n");
-						
+					if (pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")){
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la derecha de la asignación pero encontró una expresión incorrecta\n");
+					}
+					if(!atributosIDS.get("tipo").equals("ent")){
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la izquierda de la asignación pero encontró: '" + atributosIDS.get("tipo") + "'\n");
+					}
+					if(!pilaAtributos.get(cima-3).get("tipo").equals("tipo_error")) {
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la derecha de la asignación pero encontró: '" + pilaAtributos.get(cima-3).get("tipo") + "'\n");
+					}
 				}
 				
 				break;
@@ -707,12 +711,10 @@ public class Procesador {
 				else {
 					atributos.put("tipo", "tipo_error");
 					if (pilaAtributos.get(cima-5).get("tipo").equals("log"))
-						GenerarErrores(32, "Se esperaba una expresion de tipo 'ent' o 'cad' pero se encontró: '" + pilaAtributos.get(cima-5).get("tipo") + "'\n");
+						GenerarErrores(32, "La llamada a print esperaba una expresión de tipo 'ent' o 'cad' pero se encontró: '" + pilaAtributos.get(cima-5).get("tipo") + "'\n");
 					else {
-						GenerarErrores(32, "Se esperaba una expresion de tipo 'ent' o 'cad'\n");
+						GenerarErrores(32, "La llamada a print esperaba una expresión de tipo 'ent' o 'cad'\n");
 					}
-					
-					
 			}
 			 	
 				break;
@@ -758,8 +760,7 @@ public class Procesador {
 					
 				}else{
 					atributos.put("tipo", "tipo_error");
-					GenerarErrores(33,"Se esperaba un identificador pero se encontró: '" + id + "'\n");
-					
+					GenerarErrores(33,"La llamada a input esperaba un identificador 'ent' o 'cad' pero se encontró 'log': " + id + "\n");
 				}
 				
 				break;
@@ -835,12 +836,20 @@ public class Procesador {
 					}
 				}
 				pilaAtributos.set(cima-5, atributosIDS);
-				if (atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
+				if (atributosIDS.get("tipo").equals("ent") && atributosIDS.get("tipo").equals(pilaAtributos.get(cima-1).get("tipo"))){
 					atributos.put("tipo", "tipo_ok");
 				}
 				else {
 					atributos.put("tipo", "tipo_error");
-					GenerarErrores(28, "Se esperaba un tipo de dato entero  pero se encontró '" + atributosIDS.get("tipo") + "'\n");
+					if (pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")){
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la derecha de la asignación pero encontró una expresión incorrecta\n");
+					}
+					if(!atributosIDS.get("tipo").equals("ent")){
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la izquierda de la asignación pero encontró: '" + atributosIDS.get("tipo") + "'\n");
+					}
+					if(!pilaAtributos.get(cima-1).get("tipo").equals("tipo_error")) {
+						GenerarErrores(28, "La operación %= esperaba un tipo de dato entero a la derecha de la asignación pero encontró: '" + pilaAtributos.get(cima-1).get("tipo") + "'\n");
+					}
 				}
 				
 				break;
@@ -1348,7 +1357,6 @@ public class Procesador {
 	}
 
 	private static void rellenarConsecuentes (){
-		
 		consecuentes[0] = "S1:1"; consecuentes[1] = "S:2"; consecuentes[2] = "S:2"; consecuentes[3] = "S:0";
 		consecuentes[4] = "A:3"; consecuentes[5] = "A:0"; consecuentes[6] = "B:5"; consecuentes[7] = "B:5";
 		consecuentes[8] = "B:1"; consecuentes[9] = "B:11"; consecuentes[10] = "B1:2"; consecuentes[11] = "B1:0";
@@ -1362,22 +1370,6 @@ public class Procesador {
 		consecuentes[40] = "E:3"; consecuentes[41] = "E:1"; consecuentes[42] = "E1:3"; consecuentes[43] = "E1:1";
 		consecuentes[44] = "E3:2"; consecuentes[45] = "E3:3"; consecuentes[46] = "E3:1"; consecuentes[47] = "E3:4";
 		consecuentes[48] = "E3:1"; consecuentes[49] = "E3:1";
-		
-		/*
-		consecuentes[1] = "S1:1"; consecuentes[2] = "S:2"; consecuentes[3] = "S:2"; consecuentes[4] = "S:0";
-		consecuentes[5] = "A:3"; consecuentes[6] = "A:0"; consecuentes[7] = "B:5"; consecuentes[8] = "B:5";
-		consecuentes[9] = "B:1"; consecuentes[10] = "B:11"; consecuentes[11] = "B1:2"; consecuentes[12] = "B1:0";
-		consecuentes[13] = "C:5"; consecuentes[14] = "C:4"; consecuentes[15] = "C:4"; consecuentes[16] = "C:5";
-		consecuentes[17] = "C:5"; consecuentes[18] = "C:3"; consecuentes[19] = "D:0"; consecuentes[20] = "D:4";
-		consecuentes[21] = "D:4"; consecuentes[22] = "F:3"; consecuentes[23] = "F1:3"; consecuentes[24] = "F2:3";
-		consecuentes[25] = "F3:3"; consecuentes[26] = "G:2"; consecuentes[27] = "G:0"; consecuentes[28] = "H:1";
-		consecuentes[29] = "H:0"; consecuentes[30] = "K:4"; consecuentes[31] = "K:0"; consecuentes[32] = "L:2";
-		consecuentes[33] = "L:0"; consecuentes[34] = "Q:3"; consecuentes[35] = "Q:0"; consecuentes[36] = "T:1";
-		consecuentes[37] = "T:1"; consecuentes[38] = "T:1"; consecuentes[39] = "X:1"; consecuentes[40] = "X:0";
-		consecuentes[41] = "E:3"; consecuentes[42] = "E:1"; consecuentes[43] = "E1:3"; consecuentes[44] = "E1:1";
-		consecuentes[45] = "E3:2"; consecuentes[46] = "E3:3"; consecuentes[47] = "E3:1"; consecuentes[48] = "E3:4";
-		consecuentes[49] = "E3:1"; consecuentes[50] = "E3:1";
-		*/
 	}
 
 	
@@ -1506,10 +1498,10 @@ public class Procesador {
 					FichError.write("Error semántico (36): Linea "+nLinea+" "+datos);
 					break;
 				case 40:
-					FichError.write("Error semántico (40): Linea "+(nLinea-1)+" "+datos);
+					FichError.write("Error semántico (40): Linea "+nLinea+" "+datos);
 					break;
 				case 41:
-					FichError.write("Error semántico (41): Linea "+(nLinea-1)+" "+datos);
+					FichError.write("Error semántico (41): Linea "+nLinea+" "+datos);
 					break;
 				case 44:
 					FichError.write("Error semántico (44): Linea "+nLinea+" "+datos);
