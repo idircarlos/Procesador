@@ -583,7 +583,7 @@ public class Procesador {
 						}
 						else if(tipoParametros.size()==0 && tipoParametrosL.size()!=0){
 							atributos.put("tipo", "tipo_error");
-							GenerarErrores(30, id);
+							GenerarErrores(30, "Llamada a a función "+id+" no recibe parámetros");
 							
 						}
 						else if (tipoParametros.size() == tipoParametrosL.size() && !tipoParametros.equals(tipoParametrosL)){
@@ -762,7 +762,6 @@ public class Procesador {
 					atributos.put("tipo", "tipo_error");
 					GenerarErrores(33,"La llamada a input esperaba un identificador 'ent' o 'cad' pero se encontró 'log': " + id + "\n");
 				}
-				
 				break;
 
 			case 17:
@@ -1153,9 +1152,10 @@ public class Procesador {
 					else {
 						if (tipoParametrosID.size()==0 && tipoParametros.size()!=0){
 							atributos.put("tipo", "tipo_error");
-							GenerarErrores(30, id);
+							GenerarErrores(30, "Llamada a a función "+id+" no recibe parámetros");
 						}
 						else if(!TGlobal.get(id).get("numParam").equals(numParametros)){
+							atributos.put("tipo", "tipo_error");
 							GenerarErrores(31, "El número de parametros de la funcion " + id + " es incorrecto, se esperaban " + pilaAtributos.get(cima-7).get("numParam") + "\n");
 						}
 						else if(TGlobal.get(id).get("numParam").equals(numParametros) && !tipoParametros.equals(tipoParametrosID)){
@@ -1167,8 +1167,8 @@ public class Procesador {
 						}
 
 						else{
-						atributos.put("tipo", "tipo_error");
-						GenerarErrores(50, "La llamada a la función " + id + " es incorrecta\n");
+							atributos.put("tipo", "tipo_error");
+							GenerarErrores(50, "La llamada a la función " + id + " es incorrecta\n");
 						}
 						
 					}
@@ -1183,7 +1183,7 @@ public class Procesador {
 					else {
 						if (tipoParametrosID.size()==0  && tipoParametros.size()!=0){
 							atributos.put("tipo", "tipo_error");
-							GenerarErrores(30, id);
+							GenerarErrores(30, "Llamada a a función "+id+" no recibe parámetros");
 						}
 						else if(!TGlobal.get(id).get("numParam").equals(numParametros)){
 							GenerarErrores(31, "El número de parametros de la funcion " + id + " es incorrecto, se esperaban " + pilaAtributos.get(cima-7).get("numParam") + "\n");
@@ -1418,7 +1418,7 @@ public class Procesador {
 					hayError = true;
 					break;
 				case 6:
-					FichError.write("Error semántico (6): Linea "+nLinea+" "+datos);
+					FichError.write("Error léxico (6): Linea "+nLinea+" "+datos);
 					hayError = true;
 					break;
 				
@@ -1477,7 +1477,7 @@ public class Procesador {
 					FichError.write("Error semántico (29): Linea "+nLinea+ " " + datos);
 					break;
 				case 30:
-					FichError.write("Error semántico (30): Linea "+nLinea+" Llamada a a función "+datos+" no recibe parámetros");
+					FichError.write("Error semántico (30): Linea "+nLinea+" " + datos);
 					break;
 				case 31:
 					FichError.write("Error semántico (31): Linea "+nLinea+" "+datos);
