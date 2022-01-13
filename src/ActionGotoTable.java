@@ -1,11 +1,8 @@
 import java.io.BufferedReader;
 import java.io.FileReader;
 import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.HashMap;
 import java.util.Iterator;
 import java.util.LinkedHashMap;
-import java.util.LinkedList;
 import java.util.Map;
 
 public class ActionGotoTable {
@@ -57,7 +54,6 @@ public class ActionGotoTable {
                 else {
                     pares.add(simbolos[i]);
                 }
-                
                 pares.add(acciones[i]);
             }
         }
@@ -68,10 +64,9 @@ public class ActionGotoTable {
         BufferedReader bf = null;
 		FileReader fr = null;
         try {
-			fr = new FileReader("doc/Prueba_2.csv");
+			fr = new FileReader("doc/actiongototable.csv");
 			bf = new BufferedReader(fr);
             String [] simbolos = bf.readLine().split(",");
-            //System.out.println(Arrays.toString(simbolos));
             String linea = null;
             String [] fila;
             String estado = null;
@@ -83,10 +78,5 @@ public class ActionGotoTable {
         }catch(Exception e){
 
         }
-    }
-
-    private void inicializarTabla() {
-
-        
     }
 }

@@ -1,0 +1,85 @@
+TABLA DE SIMBOLOS GLOBAL #1 :
+
+* LEXEMA : 'booleano'
+  	Atributos :
+  		+ tipo: 'log'
+  		+ despl: 0
+* LEXEMA : 'bisiesto'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'log'
+  		+ numParam: 1
+  		+ TipoParam1: 'ent'
+  		+ EtiqFuncion: 'EtiqFuncion1'
+* LEXEMA : 'dias'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'ent'
+  		+ numParam: 2
+  		+ TipoParam1: 'ent'
+  		+ TipoParam2: 'ent'
+  		+ EtiqFuncion: 'EtiqFuncion2'
+* LEXEMA : 'esFechaCorrecta'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'log'
+  		+ numParam: 3
+  		+ TipoParam1: 'ent'
+  		+ TipoParam2: 'ent'
+  		+ TipoParam3: 'ent'
+  		+ EtiqFuncion: 'EtiqFuncion3'
+* LEXEMA : 'demo'
+  	Atributos :
+  		+ tipo: 'func'
+  		+ TipoRetorno: 'tipo_vacio'
+  		+ numParam: 0
+  		+ EtiqFuncion: 'EtiqFuncion4'
+* LEXEMA : 'a_1_b_2'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+-----------------------------------------
+TABLA bisiesto #2 :
+
+* LEXEMA : 'a'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+* LEXEMA : 'bis'
+  	Atributos :
+  		+ tipo: 'cad'
+  		+ despl: 1
+-----------------------------------------
+TABLA dias #3 :
+
+* LEXEMA : 'm'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+* LEXEMA : 'a'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+* LEXEMA : 'dd'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 2
+-----------------------------------------
+TABLA esFechaCorrecta #4 :
+
+* LEXEMA : 'd'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 2
+* LEXEMA : 'm'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 1
+* LEXEMA : 'a'
+  	Atributos :
+  		+ tipo: 'ent'
+  		+ despl: 0
+-----------------------------------------
+TABLA demo #5 :
+
+-----------------------------------------

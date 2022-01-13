@@ -1,5 +1,3 @@
-import java.util.Comparator;
-
 public class Pair<X, Y> implements Comparable<Pair<String,Integer>>{
     private X left;
     private Y right;

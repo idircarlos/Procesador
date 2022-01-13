@@ -15,4 +15,4 @@ function operacion
 }
 number = operacion (a, b) - log;
 print (!number);
-let guacamole variable = 'riquisimo';
+let aguacate variable = 'riquisimo';

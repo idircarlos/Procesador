@@ -1,7 +1,0 @@
-Error semántico (21): Linea 2 Se esperaba un tipo de dato 'ent' pero se encontró 'cad'
-Error semántico (21): Linea 3 Se esperaba un tipo de dato 'log' pero se encontró 'ent'
-Error semántico (31): Linea 9 El número de parametros de la funcion auxiliar es incorrecto, se esperaban 5
-Error semántico (29): Linea 10 Se esperaba un tipo de dato 'ent' pero se encontró un tipo erróneo
-Error semántico (36): Linea 10 Los parámetros que se esperaban para la función auxiliar son: [ent, ent, ent, ent, ent] pero se encontraron: [ent, cad, cad, cad, log]
-Error semántico (29): Linea 12 Se esperaba un tipo de dato 'ent' pero se encontró un tipo erróneo
-Error semántico (6): Linea 13 Ya existe el identificador 'n' en este ámbito
