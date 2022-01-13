@@ -1608,7 +1608,7 @@ public class Procesador {
 		agt = new ActionGotoTable();
 		rellenarConsecuentes();
 		try {
-			fr = new FileReader("./data/inputSemantico.txt");
+			fr = new FileReader("./data/input.txt");
 			bf = new BufferedReader(fr);
 		} catch (IOException e) {
 			e.printStackTrace();
