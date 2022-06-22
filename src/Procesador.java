@@ -1602,23 +1602,27 @@ public class Procesador {
 	
 
 	public static void main (String [] args) {
+		if (args.length != 1){
+			System.err.println("Uso: java -jar procesador.java <input.txt>");
+			System.exit(1);
+		}
 		palRes = new HashMap<>();
 		rellenarTPR();
 		afd = new DeterministFiniteAutomate();
 		agt = new ActionGotoTable();
 		rellenarConsecuentes();
 		try {
-			fr = new FileReader("./data/input.txt");
+			fr = new FileReader(args[0]);
 			bf = new BufferedReader(fr);
 		} catch (IOException e) {
 			e.printStackTrace();
 		}
 		try {
 			car = (char)bf.read();
-			FichToken = new FileWriter(new File("./data/tokens.txt"));
-			FichTablaSimb = new FileWriter(new File("./data/TS.txt"));
-			FichError = new FileWriter(new File("./data/errores.txt"));
-			FichParse = new FileWriter(new File("./data/parse.txt"));
+			FichToken = new FileWriter(new File("tokens.txt"));
+			FichTablaSimb = new FileWriter(new File("TS.txt"));
+			FichError = new FileWriter(new File("errores.txt"));
+			FichParse = new FileWriter(new File("parse.txt"));
 			FichParse.write("Ascendente ");
 		} catch (IOException e) {
 			e.printStackTrace();

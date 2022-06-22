@@ -4,7 +4,6 @@ class DeterministFiniteAutomate {
 	private static final int NUM_CHAR = 255; //ASCII Extendido
 	private ParMT [][] matrix; 
 
-	@SuppressWarnings("unchecked")
 	public DeterministFiniteAutomate() {
 		matrix = new ParMT[NUM_STATES][NUM_CHAR];
 		for (int i = 0; i < NUM_STATES; i++) {		
